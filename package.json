@@ -1,0 +1,31 @@
+{
+  "name": "syllabuddy",
+  "version": "1.0.0",
+  "description": "Syllabuddy is a streamlining tool for plotting course schedules directly from the syllabus to Google Calendar.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zanzanzand/syllabuddy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/zanzanzand/syllabuddy/issues"
+  },
+  "homepage": "https://github.com/zanzanzand/syllabuddy#readme",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mongoose": "^9.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
