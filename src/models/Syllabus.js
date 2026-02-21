@@ -17,7 +17,7 @@ const syllabusSchema = new mongoose.Schema({
         type: String,
     },
     events: eventSchema,
-    grading: gradeSchema,
+    // grading: gradeSchema,
 }, {
     timestamps: true
 });
