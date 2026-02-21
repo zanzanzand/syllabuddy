@@ -17,7 +17,7 @@ const syllabusSchema = new mongoose.Schema({
     semester: {
         type: String,
     },
-    events: eventSchema,
+    events: [eventSchema],
 }, {
     timestamps: true
 });
