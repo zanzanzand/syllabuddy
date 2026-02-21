@@ -23,4 +23,4 @@ const syllabusSchema = new mongoose.Schema({
 });
 
 const Syllabus = mongoose.model('Syllabus', syllabusSchema);
-export default Syllabus;
+module.exports = Syllabus
