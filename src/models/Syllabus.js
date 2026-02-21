@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const eventSchema = require('./Event.js')
 
 const syllabusSchema = new mongoose.Schema({
     title: {
@@ -17,7 +18,6 @@ const syllabusSchema = new mongoose.Schema({
         type: String,
     },
     events: eventSchema,
-    // grading: gradeSchema,
 }, {
     timestamps: true
 });
