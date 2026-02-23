@@ -1,7 +1,7 @@
 require('dotenv').config()
-const { GoogleGenAI } = require('@google/genai');
+const { GoogleGenAI, createPartFromUri } = require('@google/genai');
 const API_KEY = process.env.API_KEY;
-const fs = require('fs');
+const path = require('path');
 
 console.log(API_KEY);
 
@@ -37,13 +37,39 @@ IMPORTANT:
 - Empty fields should be empty strings "", not null`
 
 async function main(){
+    const file = await ai.files.upload({
+    file: path.join(__dirname, 'test_file.pdf'),
+    config: {
+        mimeType: 'application/pdf'
+    }
+    });
 
+    let getFile = await ai.files.get({ name: file.name });
+    while (getFile.state === 'PROCESSING') {
+        getFile = await ai.files.get({ name: file.name });
+        console.log(`current file status: ${getFile.state}`);
+        console.log('File is still processing, retrying in 5 seconds');
 
+        await new Promise((resolve) => {
+            setTimeout(resolve, 5000);
+        });
+    }
+    if (file.state === 'FAILED') {
+        throw new Error('File processing failed.');
+    }
+    if (!file.uri || !file.mimeType) {
+        throw new Error('File upload filed or missing mimetype.')
+    }
+    const fileContent = createPartFromUri(file.uri, file.mimeType);
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: prompt,
+        contents: [
+            prompt,
+            fileContent
+        ],
         config: {
-            responseMimeType: "application/json"
+            responseMimeType: "application/json",
+            temperature: 0
         },
     });
     console.log(response.text);
