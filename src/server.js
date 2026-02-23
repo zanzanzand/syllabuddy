@@ -1,6 +1,44 @@
+require('dotenv').config()
 const express = require('express')
+const cors = require('cors')
+const mongoose = require('mongoose')
+const Syllabus = require('./models/Syllabus.js')
+
 const app = express()
-const PORT = 3000
+const PORT = process.env.PORT || 3000
+
+// Temporarily allows all requests, will restrict later on for security.
+app.use(cors())
+
+mongoose.connect(process.env.MONGODB_CONNECTION)
+.then(()=> {console.log("Database connection success!");
+})
+.catch((error)=> {console.log("Database connection failed! Error: " + error);
+})
+
+const start = async ()=>{
+    try{
+        const sample = await Syllabus.create({
+            title: 'Testing!',
+            code: 'CSCI 42',
+            instructor: 'Bon',
+            events: [{
+                title: 'First Iter',
+                date: new Date(),
+                type: 'Exam',
+                description: 'Setting up database and manually adding data to check if schema works.'
+            }]
+        })
+
+        console.log(sample);
+        
+        app.get('/sample', (req, res) => {
+            res.send(sample)
+        })
+    } catch(error){
+        console.log(error);
+    }
+}
 
 app.listen(PORT, (error) => {
     if(!error){
@@ -12,5 +50,7 @@ app.listen(PORT, (error) => {
 })
 
 app.get('/', (req, res) => {
-    res.send("Hello World")
+    res.send('Hello World')
 })
+
+start();
