@@ -44,7 +44,7 @@ Gemini 2.5 Flash API has the following limits to take note of:
 EACH iteration of this main function is 2 requests, to avoid req limit when testing always give 2 minutes "break"
 before running the test again.
 */
-async function main(){
+const parseSyllabus = async()=>{
     // Request 1 - File Upload
     const file = await ai.files.upload({
     file: path.join(__dirname, 'test_file.pdf'),
@@ -63,13 +63,13 @@ async function main(){
             setTimeout(resolve, 5000);
         });
     }
-    if (file.state === 'FAILED') {
+    if (getFile.state === 'FAILED') {
         throw new Error('File processing failed.');
     }
-    if (!file.uri || !file.mimeType) {
+    if (!getFile.uri || !getFile.mimeType) {
         throw new Error('File upload filed or missing mimetype.')
     }
-    const fileContent = createPartFromUri(file.uri, file.mimeType);
+    const fileContent = createPartFromUri(getFile.uri, getFile.mimeType);
     // Request 2 - Content Generation (Hitting the "send" on the request)
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
@@ -82,7 +82,7 @@ async function main(){
             temperature: 0
         },
     });
-    console.log(response.text);
+    return JSON.parse(response.text)
 }
 
-main();
+module.exports = { parseSyllabus }
