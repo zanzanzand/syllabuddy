@@ -6,6 +6,7 @@ const Syllabus = require('./models/Syllabus.js')
 
 const app = express()
 const PORT = process.env.PORT || 3000
+const { parseSyllabus } = require('./llm/date_parser.js')
 
 // Temporarily allows all requests, will restrict later on for security.
 app.use(cors())
@@ -42,6 +43,32 @@ const start = async ()=>{
     }
 }
 
+const scantest = async ()=>{
+    try{
+        const llmResponse = await parseSyllabus();
+        const scan = await Syllabus.create({
+            title: llmResponse.course_title,
+            code: llmResponse.course_code,
+            instructor: llmResponse.instructor,
+            semester: llmResponse.semester,
+            events: llmResponse.events.map(event =>({
+                title: event.title,
+                date: new Date(event.date),
+                type: event.type,
+                description: event.description
+            }))
+        })
+
+        console.log(scan);
+
+        app.get('/scan', (req, res) => {
+            res.send(scan)
+        })
+    } catch(error){
+        console.log(error);
+    }
+}
+
 // Checks for connection.
 app.listen(PORT, (error) => {
     if(!error){
@@ -58,3 +85,4 @@ app.get('/', (req, res) => {
 })
 
 start();
+scantest();
