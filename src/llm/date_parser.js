@@ -3,14 +3,13 @@ const { GoogleGenAI, createPartFromUri } = require('@google/genai');
 const API_KEY = process.env.API_KEY;
 const path = require('path');
 
-console.log(API_KEY);
-
 const ai = new GoogleGenAI({apiKey: API_KEY});
+// Prompt is the most CRITICAL aspect of the parser. This is the working prompt, can be improved in later iterations.
 const prompt = `You are a syllabus parser. Read this ENTIRE multi-page syllabus document and extract ALL information.
 
 CRITICAL INSTRUCTIONS:
 1. Scan EVERY page for dates, deadlines, exams, assignments, projects
-2. Convert ALL dates to YYYY-MM-DD format (assume year 2025 if not specified)
+2. Convert ALL dates to YYYY-MM-DD format (assume year 2026 if not specified)
 3. Return ONLY valid JSON - no markdown, no explanations
 
 Required JSON structure:
@@ -36,7 +35,17 @@ IMPORTANT:
 - If date format is unclear, use best judgment to convert to YYYY-MM-DD
 - Empty fields should be empty strings "", not null`
 
+/* 
+IMPORTANT:
+Gemini 2.5 Flash API has the following limits to take note of:
+1. 5 Requests per Minute
+2. 20 Requests per Day
+
+EACH iteration of this main function is 2 requests, to avoid req limit when testing always give 2 minutes "break"
+before running the test again.
+*/
 async function main(){
+    // Request 1 - File Upload
     const file = await ai.files.upload({
     file: path.join(__dirname, 'test_file.pdf'),
     config: {
@@ -61,6 +70,7 @@ async function main(){
         throw new Error('File upload filed or missing mimetype.')
     }
     const fileContent = createPartFromUri(file.uri, file.mimeType);
+    // Request 2 - Content Generation (Hitting the "send" on the request)
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: [

@@ -16,6 +16,7 @@ mongoose.connect(process.env.MONGODB_CONNECTION)
 .catch((error)=> {console.log("Database connection failed! Error: " + error);
 })
 
+// Function to add sample data into the database.
 const start = async ()=>{
     try{
         const sample = await Syllabus.create({
@@ -32,6 +33,7 @@ const start = async ()=>{
 
         console.log(sample);
         
+        // Page address to view the JSON data.
         app.get('/sample', (req, res) => {
             res.send(sample)
         })
@@ -40,6 +42,7 @@ const start = async ()=>{
     }
 }
 
+// Checks for connection.
 app.listen(PORT, (error) => {
     if(!error){
         console.log("Server running on port " + PORT);
@@ -49,8 +52,9 @@ app.listen(PORT, (error) => {
     }
 })
 
+// "Homepage" placeholder.
 app.get('/', (req, res) => {
-    res.send('Hello World')
+    res.send('Welcome to Syllabuddy!')
 })
 
 start();
