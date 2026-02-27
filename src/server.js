@@ -6,6 +6,7 @@ const Syllabus = require('./models/Syllabus.js')
 
 const app = express()
 const PORT = process.env.PORT || 3000
+const { parseSyllabus } = require('./llm/date_parser.js')
 
 // Temporarily allows all requests, will restrict later on for security.
 app.use(cors())
@@ -16,6 +17,7 @@ mongoose.connect(process.env.MONGODB_CONNECTION)
 .catch((error)=> {console.log("Database connection failed! Error: " + error);
 })
 
+// Function to add sample data into the database.
 const start = async ()=>{
     try{
         const sample = await Syllabus.create({
@@ -32,6 +34,7 @@ const start = async ()=>{
 
         console.log(sample);
         
+        // Page address to view the JSON data.
         app.get('/sample', (req, res) => {
             res.send(sample)
         })
@@ -40,6 +43,47 @@ const start = async ()=>{
     }
 }
 
+const scantest = async ()=>{
+    try{
+        const llmResponse = await parseSyllabus();
+
+        events = llmResponse.events.map(event=>{
+            let parsedDate = null
+            if (event.date){
+                parsedDate = new Date(event.date)
+            }
+            return {
+                title: event.title,
+                date: parsedDate,
+                type: event.type,
+                description: event.description
+            }
+        })
+
+        const scan = await Syllabus.create({
+            title: llmResponse.course_title,
+            code: llmResponse.course_code,
+            instructor: llmResponse.instructor,
+            semester: llmResponse.semester,
+            events: llmResponse.events.map(event =>({
+                title: event.title,
+                date: event.date,
+                type: event.type,
+                description: event.description
+            }))
+        })
+
+        console.log(scan);
+
+        app.get('/scan', (req, res) => {
+            res.send(scan)
+        })
+    } catch(error){
+        console.log(error);
+    }
+}
+
+// Checks for connection.
 app.listen(PORT, (error) => {
     if(!error){
         console.log("Server running on port " + PORT);
@@ -49,8 +93,10 @@ app.listen(PORT, (error) => {
     }
 })
 
+// "Homepage" placeholder.
 app.get('/', (req, res) => {
-    res.send('Hello World')
+    res.send('Welcome to Syllabuddy!')
 })
 
 start();
+scantest();
