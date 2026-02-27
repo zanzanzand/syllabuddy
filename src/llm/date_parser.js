@@ -33,6 +33,8 @@ IMPORTANT:
 - Include recurring lectures/classes with individual dates
 - Capture submission deadlines, consultation dates, exam schedules
 - If date format is unclear, use best judgment to convert to YYYY-MM-DD
+- If date cannot be converted to YYYY-MM-DD, set it to null
+- Never return empty strings for date fields
 - Empty fields should be empty strings "", not null`
 
 /* 
@@ -47,7 +49,7 @@ before running the test again.
 const parseSyllabus = async()=>{
     // Request 1 - File Upload
     const file = await ai.files.upload({
-    file: path.join(__dirname, 'test_file.pdf'),
+    file: path.join(__dirname, 'test_file2.pdf'),
     config: {
         mimeType: 'application/pdf'
     }
