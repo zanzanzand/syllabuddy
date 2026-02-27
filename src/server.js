@@ -46,6 +46,20 @@ const start = async ()=>{
 const scantest = async ()=>{
     try{
         const llmResponse = await parseSyllabus();
+
+        events = llmResponse.events.map(event=>{
+            let parsedDate = null
+            if (event.date){
+                parsedDate = new Date(event.date)
+            }
+            return {
+                title: event.title,
+                date: parsedDate,
+                type: event.type,
+                description: event.description
+            }
+        })
+
         const scan = await Syllabus.create({
             title: llmResponse.course_title,
             code: llmResponse.course_code,
@@ -53,7 +67,7 @@ const scantest = async ()=>{
             semester: llmResponse.semester,
             events: llmResponse.events.map(event =>({
                 title: event.title,
-                date: new Date(event.date),
+                date: event.date,
                 type: event.type,
                 description: event.description
             }))
