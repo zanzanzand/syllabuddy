@@ -7,6 +7,7 @@ const Syllabus = require('./models/Syllabus.js')
 const app = express()
 const PORT = process.env.PORT || 3000
 const { parseSyllabus } = require('./llm/date_parser.js')
+const { createEvents } = require("ics")
 
 // Temporarily allows all requests, will restrict later on for security.
 app.use(cors())
@@ -82,6 +83,51 @@ const scantest = async ()=>{
         console.log(error);
     }
 }
+
+app.get('/export', async (req, res) => {
+    try {
+
+        const syllabi = await Syllabus.find()
+
+        let events = []
+
+        syllabi.forEach(syllabus => {
+            syllabus.events.forEach(event => {
+
+                const date = new Date(event.date)
+
+                events.push({
+                    title: event.title,
+                    description: event.description,
+                    start: [
+                        date.getFullYear(),
+                        date.getMonth() + 1,
+                        date.getDate(),
+                        date.getHours(),
+                        date.getMinutes()
+                    ]
+                })
+
+            })
+        })
+
+        const { error, value } = createEvents(events)
+
+        if (error) {
+            console.log(error)
+            return res.status(500).send(error)
+        }
+
+        res.setHeader('Content-Type', 'text/calendar')
+        res.setHeader('Content-Disposition', 'attachment; filename=calendar.ics')
+
+        res.send(value)
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).send(err)
+    }
+})
 
 // Checks for connection.
 app.listen(PORT, (error) => {
