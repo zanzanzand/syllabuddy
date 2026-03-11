@@ -89,7 +89,7 @@ app.get('/export', async (req, res) => {
 
         const syllabi = await Syllabus.find()
 
-        let events = []
+        const events = []
 
         syllabi.forEach(syllabus => {
             syllabus.events.forEach(event => {
@@ -98,7 +98,7 @@ app.get('/export', async (req, res) => {
 
                 events.push({
                     title: event.title,
-                    description: event.description,
+                    description: event.type + " - " + event.description,
                     start: [
                         date.getFullYear(),
                         date.getMonth() + 1,
@@ -107,7 +107,6 @@ app.get('/export', async (req, res) => {
                         date.getMinutes()
                     ]
                 })
-
             })
         })
 
@@ -115,7 +114,7 @@ app.get('/export', async (req, res) => {
 
         if (error) {
             console.log(error)
-            return res.status(500).send(error)
+            return res.send(error)
         }
 
         res.setHeader('Content-Type', 'text/calendar')
@@ -123,9 +122,9 @@ app.get('/export', async (req, res) => {
 
         res.send(value)
 
-    } catch (err) {
-        console.log(err)
-        res.status(500).send(err)
+    } catch (error) {
+        console.log(error)
+        res.send(error)
     }
 })
 
