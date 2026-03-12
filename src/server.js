@@ -4,8 +4,10 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const passport = require('passport')
 const session = require('express-session')
+const MongoStore = require('connect-mongo')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const Syllabus = require('./models/Syllabus.js')
+const User = require('./models/User/js')
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -13,10 +15,18 @@ const { parseSyllabus } = require('./llm/date_parser.js')
 
 // Temporarily allows all requests, will restrict later on for security.
 app.use(cors())
+app.use(express.json())
+
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_CONNECTION
+    }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24
+    }
 }))
 
 app.use(passport.initialize())
@@ -27,17 +37,35 @@ passport.use(new GoogleStrategy({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: "/auth/google/callback"
 },
-(accessToken, refreshToken, profile, done) => {
-    return done(null, profile)
+async (accessToken, refreshToken, profile, done) => {
+    try {
+        let user = await User.findOne({ googleId: profile.id})
+        if (!user) {
+            user = await User.create({
+                googleId: profile.id,
+                displayName: profile.displayName,
+                email: profile.emails[0].value,
+                profilePicture: profile.photos[0].value
+            })
+        }
+        return done(null, user)
+    } catch (error) {
+        return done(error, null)
+    }
 }
 ))
 
 passport.serializeUser((user, done) => {
-    done(null, user)
+    done(null, user._id)
 })
 
-passport.deserializeUser((user, done) => {
-    done(null, user)
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await User.findById(id)
+        done(null, user)
+    } catch (error) {
+        done(error, null)
+    }
 })
 
 mongoose.connect(process.env.MONGODB_CONNECTION)
@@ -45,6 +73,14 @@ mongoose.connect(process.env.MONGODB_CONNECTION)
 })
 .catch((error)=> {console.log("Database connection failed! Error: " + error);
 })
+
+// Middleware to protect routes
+const isAuthenticated = (req, res, next) => {
+    if (req.isAuthenticated()) {
+        return next()
+    }
+    res.status(401).json({ error: 'Unauthorized. Please log in.' })
+}
 
 // Function to add sample data into the database.
 const start = async ()=>{
