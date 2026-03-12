@@ -1,21 +1,17 @@
 <script>
   import Calendar from './PCalendar.svelte';
   import FileUpload from './FileUpload.svelte';
+  import { currPage } from './store.js'
 
-  let page = $state('upload');
   let syllabusData = $state(null);
-  
-  function handleUploaded(result){
-    syllabusData = result;
-    page = 'calendar';
-  }
+
 </script>
 
 <main>
   <div>
-    {#if page === 'upload'}
-      <FileUpload onUploaded={handleUploaded} />
-    {:else if page === 'calendar'}
+    {#if $currPage === 'upload'}
+      <FileUpload />
+    {:else if $currPage === 'calendar'}
       <Calendar />
     {/if}
   </div>
