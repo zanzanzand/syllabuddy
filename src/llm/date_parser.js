@@ -43,7 +43,7 @@ Gemini 2.5 Flash API has the following limits to take note of:
 1. 5 Requests per Minute
 2. 20 Requests per Day
 
-EACH iteration of this main function is 2 requests, to avoid req limit when testing always give 2 minutes "break"
+EACH iteration of this main function is 1 request, to avoid req limit when testing always give 2 minutes "break"
 before running the test again.
 */
 const parseSyllabus = async(fileBuffer, mimeType)=>{
