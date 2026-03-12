@@ -42,10 +42,10 @@ passport.deserializeUser((user, done) => {
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 10 * 1024 * 1024 },
-    fileFilter: (req, res, cb) => {
+    fileFilter: (req, file, cb) => {
         const allowed = ['application/pdf', 'image/png']
-        if (allowed.includes.file.mimetype){
-            cb(null, True)
+        if (allowed.includes(file.mimetype)){
+            cb(null, true)
         } else{
             cb(new Error('Invalid file type. Only PDF and PNG allowed.'))
         }
