@@ -1,6 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
+const multer = require('multer')
 const mongoose = require('mongoose')
 const Syllabus = require('./models/Syllabus.js')
 
@@ -17,71 +18,54 @@ mongoose.connect(process.env.MONGODB_CONNECTION)
 .catch((error)=> {console.log("Database connection failed! Error: " + error);
 })
 
-// Function to add sample data into the database.
-const start = async ()=>{
-    try{
-        const sample = await Syllabus.create({
-            title: 'Testing!',
-            code: 'CSCI 42',
-            instructor: 'Bon',
-            events: [{
-                title: 'First Iter',
-                date: new Date(),
-                type: 'Exam',
-                description: 'Setting up database and manually adding data to check if schema works.'
-            }]
-        })
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowed = ['application/pdf', 'image/png']
+        if (allowed.includes(file.mimetype)) {
+            cb(null, true)
+        } else {
+            cb(new Error('Only PDF and PNG allowed.'))
+        }
+  }
+})
 
-        console.log(sample);
-        
-        // Page address to view the JSON data.
-        app.get('/sample', (req, res) => {
-            res.send(sample)
-        })
-    } catch(error){
-        console.log(error);
+
+app.post('/upload', upload.single('syllabus'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded." })
     }
-}
 
-const scantest = async ()=>{
-    try{
-        const llmResponse = await parseSyllabus();
+    const parsed = await parseSyllabus(req.file.buffer, req.file.mimetype)
 
-        events = llmResponse.events.map(event=>{
-            let parsedDate = null
-            if (event.date){
-                parsedDate = new Date(event.date)
-            }
-            return {
-                title: event.title,
-                date: parsedDate,
-                type: event.type,
-                description: event.description
-            }
-        })
+    const syllabus = await Syllabus.create({
+      title: parsed.course_title,
+      code: parsed.course_code,
+      instructor: parsed.instructor,
+      semester: parsed.semester,
+      events: parsed.events.map(event => {
+        let date = null
+        if (event.date) {
+          date = new Date(event.date)
+        }
+        return {
+          title: event.title,
+          date: date,
+          type: event.type,
+          description: event.description
+        }
+      })
+    })
 
-        const scan = await Syllabus.create({
-            title: llmResponse.course_title,
-            code: llmResponse.course_code,
-            instructor: llmResponse.instructor,
-            semester: llmResponse.semester,
-            events: llmResponse.events.map(event =>({
-                title: event.title,
-                date: event.date,
-                type: event.type,
-                description: event.description
-            }))
-        })
+    res.status(201).json(syllabus)
 
-        console.log(scan);
-
-        app.get('/scan', (req, res) => {
-            res.send(scan)
-        })
-    } catch(error){
-        console.log(error);
-    }
-}
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: error.message })
+  }
+})
 
 // Checks for connection.
 app.listen(PORT, (error) => {
@@ -97,6 +81,3 @@ app.listen(PORT, (error) => {
 app.get('/', (req, res) => {
     res.send('Welcome to Syllabuddy!')
 })
-
-start();
-scantest();
