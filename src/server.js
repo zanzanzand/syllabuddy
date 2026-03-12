@@ -39,7 +39,7 @@ passport.use(new GoogleStrategy({
 },
 async (accessToken, refreshToken, profile, done) => {
     try {
-        let user = await User.findOne({ googleId: profile.id})
+        let user = await User.findOne({ googleId: profile.id })
         if (!user) {
             user = await User.create({
                 googleId: profile.id,
@@ -229,6 +229,20 @@ app.delete('/profile/picture', isAuthenticated, async (req, res) => {
         res.json({ message: 'Profile picture removed.' })
     } catch (error) {
         res.status(500).json({ error: 'Failed to remove profile picture.' })
+    }
+})
+
+// Account deletion
+app.delete('/delete-account', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.user._id
+        await Syllabus.deleteMany({ userId })
+        await User.findByIdAndDelete(userId)
+        req.logout(() => {
+            res.json({ message: 'Account deleted successfully.'})
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete account.'})
     }
 })
 
