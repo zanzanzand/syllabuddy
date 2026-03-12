@@ -192,5 +192,45 @@ app.get('/', (req, res) => {
     }
 })
 
+// Get current user info
+app.get('/profile', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id)
+        res.json({
+            displayName: user.displayName,
+            email: user.email,
+            profilePicture: user.profilePicture
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch profile.' })
+    }
+})
+
+// Update profile picture
+app.put('/profile/picture', isAuthenticated, async (req, res) => {
+    try {
+        const { profilePicture } = req.body
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { profilePicture },
+            { new: true }
+        )
+        res.json({ profilePicture: user.profilePicture })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update profile picture.' })
+    }
+})
+
+// Removing profile picture
+app.delete('/profile/picture', isAuthenticated, async (req, res) => {
+    try {
+        const googlePhoto = req.user.photos?.[0]?.value || ''
+        await User.findByIdAndUpdate(req.user._id, { profilePicture: googlePhoto })
+        res.json({ message: 'Profile picture removed.' })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to remove profile picture.' })
+    }
+})
+
 start();
 scantest();
