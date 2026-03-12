@@ -14,10 +14,10 @@
 <main>
   <div>
     {#if page === 'upload'}
-    <FileUpload onUploaded={handleUploaded} />
-  {:else if page === 'calendar'}
-    <Calendar />
-  {/if}
+      <FileUpload onUploaded={handleUploaded} />
+    {:else if page === 'calendar'}
+      <Calendar />
+    {/if}
   </div>
 </main>
 
