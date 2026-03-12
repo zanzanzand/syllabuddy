@@ -1,4 +1,5 @@
 <script>
+  import { currPage } from './store.js'
   let { onUploaded } = $props();
 
   let file = $state(null);
@@ -75,6 +76,10 @@
     status = "";
   }
 </script>
+
+<div>
+  <button onclick={() => $currPage = 'calendar'}>Calendar View</button>
+</div>
 
 <div
   ondrop={handleDrop}
