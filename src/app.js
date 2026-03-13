@@ -4,8 +4,10 @@ const cors = require('cors')
 const multer = require('multer')
 const passport = require('passport')
 const session = require('express-session')
+const MongoStore = require('connect-mongo').default
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const Syllabus = require('./models/Syllabus.js')
+const User = require('./models/User.js')
 const { parseSyllabus } = require('./llm/date_parser.js')
 const { createEvents } = require("ics")
 
@@ -14,10 +16,18 @@ const app = express()
 
 // Temporarily allows all requests, will restrict later on for security.
 app.use(cors())
+app.use(express.json())
+
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_CONNECTION
+    }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24
+    }
 }))
 app.use(passport.initialize())
 app.use(passport.session())
@@ -27,17 +37,35 @@ passport.use(new GoogleStrategy({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: "/auth/google/callback"
 },
-(accessToken, refreshToken, profile, done) => {
-    return done(null, profile)
+async (accessToken, refreshToken, profile, done) => {
+    try {
+        let user = await User.findOne({ googleId: profile.id })
+        if (!user) {
+            user = await User.create({
+                googleId: profile.id,
+                displayName: profile.displayName,
+                email: profile.emails[0].value,
+                profilePicture: profile.photos[0].value
+            })
+        }
+        return done(null, user)
+    } catch (error) {
+        return done(error, null)
+    }
 }
 ))
 
 passport.serializeUser((user, done) => {
-    done(null, user)
+    done(null, user._id)
 })
 
-passport.deserializeUser((user, done) => {
-    done(null, user)
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await User.findById(id)
+        done(null, user)
+    } catch (error) {
+        done(error, null)
+    }
 })
 
 const upload = multer({
@@ -53,10 +81,12 @@ const upload = multer({
     }
 })
 
-// "Homepage" placeholder.
-app.get('/', (req, res) => {
-    res.send('Welcome to Syllabuddy!')
-})
+const isAuthenticated = (req, res, next) => {
+    if (req.isAuthenticated()) {
+        return next()
+    }
+    res.status(401).json({ error: 'Unauthorized. Please log in.' })
+}
 
 app.post('/upload', upload.single('syllabus'), async (req, res) => {
     try {
@@ -166,6 +196,60 @@ app.get('/', (req, res) => {
             <h1>Welcome to Syllabuddy!</h1>
             <a href="/auth/google"><button>Login with Google</button></a>
         `)
+    }
+})
+
+// User info
+app.get('/profile', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id)
+        res.json({
+            displayName: user.displayName,
+            email: user.email,
+            profilePicture: user.profilePicture
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch profile.' })
+    }
+})
+
+// Update profile picture
+app.put('/profile/picture', isAuthenticated, async (req, res) => {
+    try {
+        const { profilePicture } = req.body
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { profilePicture },
+            { new: true }
+        )
+        res.json({ profilePicture: user.profilePicture })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update profile picture.' })
+    }
+})
+
+// Remove profile picture
+app.delete('/profile/picture', isAuthenticated, async (req, res) => {
+    try {
+        const googlePhoto = req.user.photos?.[0]?.value || ''
+        await User.findByIdAndUpdate(req.user._id, { profilePicture: googlePhoto })
+        res.json({ message: 'Profile picture removed.' })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to remove profile picture.' })
+    }
+})
+
+// Deleting account
+app.delete('/delete-account', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.user._id
+        await Syllabus.deleteMany({ userId })
+        await User.findByIdAndDelete(userId)
+        req.logout(() => {
+            res.json({ message: 'Account deleted successfully.' })
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete account.' })
     }
 })
 
