@@ -13,10 +13,7 @@
       <PostUpload />
     {:else if $currPage === 'calendar'}
       <Calendar />
-    {/if}
-  </div>
-
-  <div class="export-section">
+      <div class="export-section">
     <button on:click={() => window.location.href = 'http://localhost:3000/export'}>
       Export Calendar (.ics)
     </button>
@@ -32,6 +29,10 @@
       </ol>
     </div>
   </div>
+    {/if}
+  </div>
+
+  
   
 </main>
 

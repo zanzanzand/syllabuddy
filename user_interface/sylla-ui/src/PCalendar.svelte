@@ -42,11 +42,12 @@
     }
 </script>
 
-<div>
-    <button onclick={() => $currPage = 'upload'}>Upload a File</button>
+<div id="addbtns">
+    <button class="add" onclick={() => $currPage = 'upload'}>Upload a File</button>
+    <button class="add" onclick={() => (showModal = true)}> Add Event </button>
 </div>
 
-<button id="add" onclick={() => (showModal = true)}> Add Event </button>
+
 
 <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} />
 
@@ -91,13 +92,21 @@
 </Modal>
 
 <style>
-    #add{
+
+    #addbtns{
+        display: flex;
+        justify-content: flex-end;
+        gap: 4px;
+        margin-bottom: 0.5em;
+    }
+
+    .add{
         background: #fff;
         color: currentcolor;
         border-color: oklch(87% 0 0);
 
     }
-    #add:hover {
+    .add:hover {
     background-color: oklch(92.2% 0 0);
     }
     #calendar-event-form {
