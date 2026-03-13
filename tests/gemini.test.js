@@ -1,0 +1,78 @@
+const request = require('supertest')
+const app = require('../src/app')
+const { parseSyllabus } = require('../src/llm/date_parser')
+const sleep = () => new Promise((resolve)=> setTimeout(resolve, 20000))
+
+jest.setTimeout(60000)
+
+
+describe("Syllabuddy Gemini API Tests", () => {
+    afterEach(async () => {
+        console.log("Waiting 20 seconds to prevent rate limits");
+        await sleep();
+    })
+
+    test("It should connect to Gemini and return valid JSON", async() => {
+        const sampleText = `
+        Course title: Intro to Testing \n
+        Code: TEST123 \n
+        My name is Bon, the one who is in charge of this course and I am honored to meet you. \n
+        This is for the 1st semester \n
+        
+        RandomTestNumero1 \n
+        
+        This is a random exam meant to test your abilities in parsing \n
+        It will consist of 2000067 tests to train your brain! \n
+        randomtestnumero1 will be done on mar 13 2026 \n
+        `
+
+        const dummyBuffer = Buffer.from(sampleText, "utf-8")
+        const response = await parseSyllabus(dummyBuffer, "text/plain")
+        
+        expect(response).toHaveProperty("course_title")
+        expect(response).toHaveProperty("course_code")
+        expect(response).toHaveProperty("instructor")
+        expect(response).toHaveProperty("semester")
+
+        expect(Array.isArray(response.events)).toBe(true)
+        expect(response.events[0].date).toBe("2026-03-13")
+
+    })
+
+    test("This should return date as null", async() => {
+        const sampleText = `
+        Course title: Intro to Testing \n
+        Code: TEST123 \n
+        My name is Bon, the one who is in charge of this course and I am honored to meet you. \n
+        This is for the 1st semester \n
+        
+        RandomTestNumero1 \n
+        
+        This is a random exam meant to test your abilities in parsing \n
+        It will consist of 2000067 tests to train your brain! \n
+        `
+        const dummyBuffer = Buffer.from(sampleText, "utf-8")
+        const response = await parseSyllabus(dummyBuffer, "text/plain")
+        
+        expect(response).toHaveProperty("course_title")
+        expect(response).toHaveProperty("course_code")
+        expect(response).toHaveProperty("instructor")
+        expect(response).toHaveProperty("semester")
+
+        expect(Array.isArray(response.events)).toBe(true)
+        expect(response.events[0].date).toBe(null)
+    })
+
+    test("This should error since first arg is not a buffer", async() => {
+        const sampleText = "BELO!"
+
+        await expect(parseSyllabus(sampleText, "text/plain")).rejects.toThrow();
+    })
+
+    test("This should error since second arg is not valid mimetype", async() => {
+        const sampleText = "BELO!"
+        const dummyBuffer = Buffer.from(sampleText, "utf-8")
+
+        await expect(parseSyllabus(dummyBuffer, "adgjkdagadklvkl")).rejects.toThrow();
+    })
+})

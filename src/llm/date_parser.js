@@ -43,41 +43,21 @@ Gemini 2.5 Flash API has the following limits to take note of:
 1. 5 Requests per Minute
 2. 20 Requests per Day
 
-EACH iteration of this main function is 2 requests, to avoid req limit when testing always give 2 minutes "break"
+EACH iteration of this main function is 1 request, to avoid req limit when testing always give 2 minutes "break"
 before running the test again.
 */
-const parseSyllabus = async()=>{
-    // Request 1 - File Upload
-    const file = await ai.files.upload({
-    file: path.join(__dirname, 'test_file2.pdf'),
-    config: {
-        mimeType: 'application/pdf'
-    }
-    });
-
-    let getFile = await ai.files.get({ name: file.name });
-    while (getFile.state === 'PROCESSING') {
-        getFile = await ai.files.get({ name: file.name });
-        console.log(`current file status: ${getFile.state}`);
-        console.log('File is still processing, retrying in 5 seconds');
-
-        await new Promise((resolve) => {
-            setTimeout(resolve, 5000);
-        });
-    }
-    if (getFile.state === 'FAILED') {
-        throw new Error('File processing failed.');
-    }
-    if (!getFile.uri || !getFile.mimeType) {
-        throw new Error('File upload filed or missing mimetype.')
-    }
-    const fileContent = createPartFromUri(getFile.uri, getFile.mimeType);
-    // Request 2 - Content Generation (Hitting the "send" on the request)
+const parseSyllabus = async(fileBuffer, mimeType)=>{
+    // Request 1 - Content Generation (Hitting the "send" on the request)
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: [
             prompt,
-            fileContent
+            {
+                inlineData: {
+                    mimeType: mimeType,
+                    data: fileBuffer.toString("base64")
+                }
+            }
         ],
         config: {
             responseMimeType: "application/json",
