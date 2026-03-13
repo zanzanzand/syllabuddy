@@ -13,7 +13,6 @@ mongoose.connect(process.env.MONGODB_CONNECTION)
     console.log("Database connection failed! Error: " + error)
 })
 
-// Startup
 app.listen(PORT, (error) => {
     if(!error){
         console.log("Server running on port " + PORT);
@@ -21,4 +20,3 @@ app.listen(PORT, (error) => {
         console.error("Error occurred " + error);
         
     }
-})
