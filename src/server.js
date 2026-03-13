@@ -4,10 +4,10 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const passport = require('passport')
 const session = require('express-session')
-const MongoStore = require('connect-mongo')
+const MongoStore = require('connect-mongo').default
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const Syllabus = require('./models/Syllabus.js')
-const User = require('./models/User/js')
+const User = require('./models/User.js')
 
 const app = express()
 const PORT = process.env.PORT || 3000
