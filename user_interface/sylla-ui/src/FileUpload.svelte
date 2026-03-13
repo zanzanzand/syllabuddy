@@ -1,6 +1,5 @@
 <script>
-  import { currPage } from './store.js'
-  let { onUploaded } = $props();
+  import { currPage, scannedSyllabus } from './store.js'
 
   let file = $state(null);
   let error = $state("");
@@ -62,7 +61,8 @@
 
       const result = await res.json();
       status = "done";
-      onUploaded(result);
+      $scannedSyllabus = result
+      $currPage = 'postUpload'
 
     } catch (err) {
       error = err.message || "Something went wrong.";
