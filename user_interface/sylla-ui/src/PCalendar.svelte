@@ -1,5 +1,6 @@
 <script>
     import {Calendar, DayGrid, Interaction, List, TimeGrid} from '@event-calendar/core';
+    import { currPage } from './store.js';
     import Modal from './AddEventModal.svelte';
     let showModal = $state(false);
     
@@ -40,6 +41,10 @@
 
     }
 </script>
+
+<div>
+    <button onclick={() => $currPage = 'upload'}>Upload a File</button>
+</div>
 
 <button id="add" onclick={() => (showModal = true)}> Add Event </button>
 
@@ -168,4 +173,3 @@
     background-color: oklch(92.2% 0 0);
     }
 </style>
-

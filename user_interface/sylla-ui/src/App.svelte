@@ -1,13 +1,19 @@
 <script>
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
   import Calendar from './PCalendar.svelte';
+  import FileUpload from './FileUpload.svelte';
+  import { currPage } from './store.js'
+
+  let syllabusData = $state(null);
+
 </script>
 
 <main>
   <div>
-    <Calendar />
+    {#if $currPage === 'upload'}
+      <FileUpload />
+    {:else if $currPage === 'calendar'}
+      <Calendar />
+    {/if}
   </div>
 </main>
 
