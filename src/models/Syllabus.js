@@ -17,6 +17,11 @@ const syllabusSchema = new mongoose.Schema({
     semester: {
         type: String,
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     events: [eventSchema],
 }, {
     timestamps: true
