@@ -7,6 +7,7 @@ const session = require('express-session')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const Syllabus = require('./models/Syllabus.js')
 const { parseSyllabus } = require('./llm/date_parser.js')
+const { createEvents } = require("ics")
 
 const app = express()
 
@@ -106,6 +107,50 @@ app.get('/logout', (req, res) => {
     req.logout(() => {
         res.redirect('/')
     })
+})
+
+app.get('/export', async (req, res) => {
+    try {
+
+        const syllabi = await Syllabus.find()
+
+        const events = []
+
+        syllabi.forEach(syllabus => {
+            syllabus.events.forEach(event => {
+
+                const date = new Date(event.date)
+
+                events.push({
+                    title: event.title,
+                    description: event.type + " - " + event.description,
+                    start: [
+                        date.getFullYear(),
+                        date.getMonth() + 1,
+                        date.getDate(),
+                        date.getHours(),
+                        date.getMinutes()
+                    ]
+                })
+            })
+        })
+
+        const { error, value } = createEvents(events)
+
+        if (error) {
+            console.log(error)
+            return res.send(error)
+        }
+
+        res.setHeader('Content-Type', 'text/calendar')
+        res.setHeader('Content-Disposition', 'attachment; filename=calendar.ics')
+
+        res.send(value)
+
+    } catch (error) {
+        console.log(error)
+        res.send(error)
+    }
 })
 
 // "Homepage" placeholder.
