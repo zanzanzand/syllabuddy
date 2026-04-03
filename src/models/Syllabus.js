@@ -4,15 +4,15 @@ const eventSchema = require('./Event.js')
 const syllabusSchema = new mongoose.Schema({
     title: {
         type: String,
-        require: true
+        required: true
     },
     code: {
         type: String,
-        require: true
+        required: true
     },
     instructor: {
         type: String,
-        require: true
+        required: true
     },
     semester: {
         type: String,
