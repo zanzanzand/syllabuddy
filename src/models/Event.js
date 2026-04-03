@@ -3,14 +3,14 @@ const mongoose = require('mongoose');
 const eventSchema = new mongoose.Schema({
     title: {
         type: String,
-        require: true
+        required: true
     },
     date: {
         type: Date,
     },
     type: {
         type: String,
-        require: true
+        required: true
     },
     description: {
         type: String,
