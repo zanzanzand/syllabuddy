@@ -1,12 +1,129 @@
 <script>
   import { currPage, scannedSyllabus } from './store.js'
  
+  const EVENT_TYPES = ['exam', 'assignment', 'project', 'consultation', 'lecture', 'other']
+
+  let events = $state([])
+
+  $effect(()=> {
+    const sylla = $scannedSyllabus;
+    if (sylla && sylla.events){
+      events = sylla.events.map((e, i)=> {
+        let id;
+        if (crypto.randomUUID) {
+          id = crypto.randomUUID()
+        }
+        else {
+          id = 'evt-' + i + '-' + Date.now()
+        }
+
+        let title = ''
+        if (e.title) {title = e.title}
+
+        let date = toDateInputValue(e.date)
+
+        let type = 'other'
+        if (e.type) {type = e.type}
+
+        let description = ''
+        if (e.description) {description = e.description}
+
+        return {
+          eventID: id,
+          title: title,
+          date: date,
+          type: type,
+          description: description,
+          isNew: false,
+          editing: false
+        }
+      })
+    }
+  })
+
+  function toDateInputValue(val) {
+    if (!val) return ''
+
+    let str
+    if (typeof val == 'string'){
+      str = val
+    }
+    else{
+      str = val.toString()
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str
+
+    const match = str.match(/^(\d{4}-\d{2}-\d{2})/)
+    if (match) return match[1]
+
+    return str
+  }
+
   function formatDate(val) {
     if (!val) return '—'
     const d = new Date(val)
     if (isNaN(d.getTime())) return '—'
     return d.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })
   }
+
+  function capitalize(val) {
+    if (!val) return '-'
+    return val.charAt(0).toUpperCase() + val.slice(1)
+  }
+
+  function toggleEdit(eventID) {
+    events = events.map(function(e) {
+      if (e.eventID==eventID){
+        return {
+          ...e, 
+          editing: !e.editing
+        }
+      }
+      return e
+    })
+  }
+
+  function updateEvent(eventID, field, value) {
+    events = events.map(function(e) {
+      if (e.eventID==eventID){
+        return{
+          ...e,
+          [field]: value
+        }
+      }
+      return e
+    })
+  }
+
+  function addEvent() {
+    let id;
+    if(crypto.randomUUID){
+      id = crypto.randomUUID()
+    }
+    else{
+      id = 'new-' + Date.now()
+    }
+
+    events = [...events, {
+      eventID: id,
+      title: '',
+      date: '',
+      type: '',
+      description: '',
+      isNew: true,
+      editing: true
+
+    }]
+  }
+
+  function removeEvent(eventID){
+    if (!confirm('Remove this event?')) return 
+    events = events.filter(function(e) {
+      return e.eventID != eventID
+    })
+  }
+
 </script>
  
 {#if $scannedSyllabus}
@@ -24,44 +141,96 @@
   </header>
  
   <section class="events-section">
-    <h3>Events ({$scannedSyllabus.events.length})</h3>
+    <div class="section-header">
+      <h3>Events ({events.length})</h3>
+      <button class="btn-add" onclick={addEvent}>+ Add Event</button>
+    </div>
  
-    {#if $scannedSyllabus.events.length === 0}
+    {#if events.length === 0}
       <p class="empty-state">No events detected from this syllabus.</p>
     {/if}
  
     <div class="events-list">
-      {#each $scannedSyllabus.events as event, i}
-        <div class="event-card">
+      {#each events as event, i (event.eventID)}
+        <div class="event-card" class:is-new={event.isNew}>
           <div class="event-card-header">
             <span class="event-number">#{i + 1}</span>
-            <span class="event-type-badge">{event.type}</span>
+            {#if event.isNew}
+              <span class="event-type-badge event-new-badge">New</span>
+            {/if}
+            <div class="event-header-actions">
+              <button class="btn-edit" onclick={() => toggleEdit(event.eventID)}>
+                {#if event.editing}
+                  Done
+                {:else}
+                  Edit
+                {/if}
+              </button>
+              <button class="btn-remove" onclick={() => removeEvent(event.eventID)}>✕</button>
+            </div>
           </div>
- 
+
+          {#if event.editing}
           <div class="event-fields">
             <div class="field-row">
+              <div class="field field-grow">
+                <label for="title-{event.eventID}">Title</label>
+                <input id="title-{event.eventID}" type="text" value={event.title}
+                  oninput={(e) => updateEvent(event.eventID, 'title', e.target.value)}
+                  placeholder="e.g. Midterm Exam" />
+              </div>
               <div class="field">
-                <span class="field-label">Title</span>
-                <span class="field-value">{event.title}</span>
+                <label for="type-{event.eventID}">Type</label>
+                <select id="type-{event.eventID}" value={event.type}
+                  onchange={(e) => updateEvent(event.eventID, 'type', e.target.value)}>
+                  {#each EVENT_TYPES as t}
+                    <option value={t}>{capitalize(t)}</option>
+                  {/each}
+                </select>
               </div>
             </div>
- 
-            <div class="field-row">
+            <div class="field">
+              <label for="date-{event.eventID}">Date</label>
+              <input id="date-{event.eventID}" type="date" value={event.date}
+                oninput={(e) => updateEvent(event.eventID, 'date', e.target.value)} />
+            </div>
+            <div class="field">
+              <label for="desc-{event.eventID}">Description</label>
+              <textarea id="desc-{event.eventID}" value={event.description}
+                oninput={(e) => updateEvent(event.eventID, 'description', e.target.value)}
+                rows="2" placeholder="Event description…"></textarea>
+            </div>
+          </div>
+          {:else}
+            <div class="event-fields">
+              <div class="field-row">
+                <div class="field">
+                  <span class="field-label">Title</span>
+                  {#if event.title}
+                    <span class="field-value">{event.title}</span>
+                  {:else}
+                    <span class="field-value">—</span>
+                  {/if}
+                </div>
+                <div class="field">
+                  <span class="field-label">Type</span>
+                  <span class="field-value">{capitalize(event.type)}</span>
+                </div>
+              </div>
+
               <div class="field">
                 <span class="field-label">Date</span>
                 <span class="field-value">{formatDate(event.date)}</span>
               </div>
-            </div>
- 
-            {#if event.description}
-              <div class="field-row">
+
+              {#if event.description}
                 <div class="field">
                   <span class="field-label">Description</span>
                   <span class="field-value">{event.description}</span>
                 </div>
-              </div>
-            {/if}
-          </div>
+              {/if}
+            </div>
+          {/if}
         </div>
       {/each}
     </div>
@@ -116,6 +285,9 @@
     padding: 1rem 1.25rem; 
     background: #fff; 
   }
+  .event-card.is-new { 
+    border-left: 4px solid #3b82f6; 
+  }
   .event-card-header { 
     display: flex; 
     align-items: center; 
@@ -127,6 +299,11 @@
     color: #64748b; 
     font-size: 0.85rem; 
   }
+  .event-header-actions { 
+    margin-left: auto; 
+    display: flex; 
+    gap: 0.4rem; 
+  }
   .event-type-badge { 
     font-size: 0.7rem; 
     text-transform: uppercase; 
@@ -135,6 +312,10 @@
     border-radius: 4px; 
     background: #f1f5f9; 
     color: #475569; 
+  }
+  .event-new-badge { 
+    background: #dbeafe; 
+    color: #1e40af; 
   }
   .event-fields { 
     display: flex; 
@@ -148,6 +329,9 @@
   .field-row .field { 
     flex: 1; 
   }
+  .field-grow { 
+    flex: 2 !important; 
+  }
   .field-label { 
     display: block; 
     font-size: 0.75rem; 
@@ -156,6 +340,27 @@
     text-transform: uppercase; 
     letter-spacing: 0.03em; 
     margin-bottom: 0.15rem; 
+  }
+  .field label { 
+    display: block; 
+    font-size: 0.8rem; 
+    font-weight: 500; 
+    color: #475569; 
+    margin-bottom: 0.2rem; 
+  }
+  .field input, .field textarea, .field select { 
+    width: 100%; 
+    padding: 0.45rem 0.6rem; 
+    border: 1px solid #cbd5e1; 
+    border-radius: 6px; 
+    font-size: 0.9rem; 
+    box-sizing: border-box; 
+    font-family: inherit; 
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { 
+    outline: none; 
+    border-color: #4f46e5; 
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15); 
   }
   .field-value { 
     display: block; 
@@ -191,5 +396,42 @@
   }
   .btn-secondary:hover { 
     background: #f8fafc; 
+  }
+  .btn-edit { 
+    background: #f1f5f9; 
+    border: 1px solid #cbd5e1; 
+    border-radius: 5px; 
+    padding: 0.25rem 0.65rem; 
+    cursor: pointer; 
+    font-size: 0.8rem; 
+    color: #475569; 
+  }
+  .btn-edit:hover { 
+    background: #e2e8f0; 
+  }
+  .btn-add { 
+    padding: 0.4rem 1rem; 
+    background: #eef2ff; 
+    color: #4f46e5; 
+    border: 1px solid #c7d2fe; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: 500; 
+    font-size: 0.85rem; 
+  }
+  .btn-add:hover { 
+    background: #e0e7ff; 
+  }
+  .btn-remove { 
+    background: none; 
+    border: none; 
+    color: #ef4444; 
+    cursor: pointer; 
+    font-size: 1.1rem; 
+    padding: 0.25rem; 
+    line-height: 1; 
+  }
+  .btn-remove:hover { 
+    color: #dc2626; 
   }
 </style>
