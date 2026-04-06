@@ -152,6 +152,19 @@ app.post('/syllabus/save', async (req, res) => {
     }
 })
 
+app.delete('/syllabus/:id', async (req, res) => {
+    try {
+        const syllabus = await Syllabus.findByIdAndDelete(req.params.id)
+        if (!syllabus){
+            return res.status(404).json({ error: 'Syllabus not found.' })
+        }
+        res.status(200).json({ message: 'Deleted.'})
+    } catch(error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to delete.'})
+    }
+})
+
 // Google Login
 app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
