@@ -130,7 +130,7 @@ app.post('/syllabus/save', async (req, res) => {
         }
 
         const syllabus = await Syllabus.findByIdAndUpdate(
-            payload._id,
+            payload.SyllaID,
             {
                 title: payload.title,
                 code: payload.code,
