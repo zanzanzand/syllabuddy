@@ -138,7 +138,7 @@ app.post('/syllabus/save', async (req, res) => {
                 semester: payload.semester,
                 events: payload.events,
             },
-            { new: true }
+            { returnDocument: 'after' }
         )
 
         if (!syllabus) {
