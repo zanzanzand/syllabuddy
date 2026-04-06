@@ -121,6 +121,37 @@ app.post('/upload', upload.single('syllabus'), async (req, res) => {
   }
 })
 
+app.post('/syllabus/save', async (req, res) => {
+    try {
+        const payload = req.body
+
+        if (!payload.events || payload.events.length === 0) {
+            return res.status(400).json({ error: 'At least one event is required.' })
+        }
+
+        const syllabus = await Syllabus.findByIdAndUpdate(
+            payload._id,
+            {
+                title: payload.title,
+                code: payload.code,
+                instructor: payload.instructor,
+                semester: payload.semester,
+                events: payload.events,
+            },
+            { new: true }
+        )
+
+        if (!syllabus) {
+            return res.status(404).json({ error: 'Syllabus not found.' })
+        }
+
+        res.status(200).json(syllabus)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Failed to save.' })
+    }
+})
+
 // Google Login
 app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
