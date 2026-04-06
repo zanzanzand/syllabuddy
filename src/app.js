@@ -152,7 +152,7 @@ app.post('/syllabus/save', async (req, res) => {
     }
 })
 
-app.delete('/syllabus/:id', async (req, res) => {
+app.delete('/syllabus/delete/:id', async (req, res) => {
     try {
         const syllabus = await Syllabus.findByIdAndDelete(req.params.id)
         if (!syllabus){
