@@ -37,14 +37,12 @@
     }}>
       Calculator
     </button>
+
+    <button on:click={() => currPage.set('profile')}>Profile</button>
   </div>
 </div>
 
 <main>
-  <div class="sidebar">
-    <button on:click={() => currPage.set('calendar')}>Home</button>
-    <button on:click={() => currPage.set('profile')}>Profile</button>
-  </div>
   
   <div>
     {#if $currPage === 'upload'}
@@ -53,28 +51,30 @@
       <PostUpload />
     {:else if $currPage === 'calculator'}
      <GradeCalculator />
+    {:else if $currPage === 'profile'}
+      <Profile />
     {:else if $currPage === 'calendar'}
       <Calendar />
       <div class="export-section">
     
-    <button on:click={() => window.location.href = 'http://localhost:3000/export'}>
-      Export Calendar (.ics)
-    </button>
+      <button on:click={() => window.location.href = 'http://localhost:3000/export'}>
+        Export Calendar (.ics)
+      </button>
 
-    <div>
-      <h2>How to Import to Google Calendar</h2>
-      <ol>
-        <li>Click the Export Calendar button.</li>
-        <li>Download the .ics file.</li>
-        <li>Open Google Calendar.</li>
-        <li>Go to Settings → Import.</li>
-        <li>Select the downloaded .ics file.</li>
-      </ol>
-    </div> 
+      <div>
+        <h2>How to Import to Google Calendar</h2>
+        <ol>
+          <li>Click the Export Calendar button.</li>
+          <li>Download the .ics file.</li>
+          <li>Open Google Calendar.</li>
+          <li>Go to Settings → Import.</li>
+          <li>Select the downloaded .ics file.</li>
+        </ol>
+      </div> 
+    </div>
+  
+  {/if}
   </div>
-    {/if}
-  </div>
-
 
 </main>
 
