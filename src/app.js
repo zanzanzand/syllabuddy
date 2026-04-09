@@ -15,7 +15,11 @@ const app = express()
 
 
 // Temporarily allows all requests, will restrict later on for security.
-app.use(cors())
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}))
+
 app.use(express.json())
 
 app.use(session({
@@ -81,6 +85,19 @@ const upload = multer({
     }
 })
 
+const profileUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowed = ['image/jpeg', 'image/png']
+        if (allowed.includes(file.mimetype)) {
+            cb(null, true)
+        } else {
+            cb(new Error('Only JPG/PNG allowed'))
+        }
+    }
+})
+
 const isAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
         return next()
@@ -121,7 +138,7 @@ app.post('/upload', upload.single('syllabus'), async (req, res) => {
   }
 })
 
-// Google Login
+//Google Login
 app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
 )
@@ -214,17 +231,24 @@ app.get('/profile', isAuthenticated, async (req, res) => {
 })
 
 // Update profile picture
-app.put('/profile/picture', isAuthenticated, async (req, res) => {
+app.put('/profile/picture', isAuthenticated, profileUpload.single('picture'), async (req, res) => {
     try {
-        const { profilePicture } = req.body
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' })
+        }
+
+        const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`
+
         const user = await User.findByIdAndUpdate(
             req.user._id,
-            { profilePicture },
+            { profilePicture: base64 },
             { new: true }
         )
+
         res.json({ profilePicture: user.profilePicture })
     } catch (error) {
-        res.status(500).json({ error: 'Failed to update profile picture.' })
+        console.error(error)
+        res.status(500).json({ error: 'Upload failed' })
     }
 })
 
