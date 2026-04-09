@@ -132,6 +132,16 @@
             saveColorStatus = 'Failed to reset colors.'
         }
     }
+
+
+  function $effect(arg0) {
+    throw new Error('Function not implemented.');
+  }
+
+
+  function $state(arg0) {
+    throw new Error('Function not implemented.');
+  }
 </script>
 
 <div class="settings-page">
@@ -158,13 +168,13 @@
 
         <div class="form-group">
             <label for="bg-upload">Background Image (optional)</label>
-            <input type="file" id="bg-upload" accept=".jpg,.jpeg,.png" onchange={handleBgUpload} />
+            <input type="file" id="bg-upload" accept=".jpg,.jpeg,.png" on:change={handleBgUpload} />
         </div>
 
         {#if bgImage}
             <div class="bg-preview">
                 <img src={bgImage} alt="Background preview" />
-                <button class="remove-btn" onclick={() => bgImage = ''}>Remove</button>
+                <button class="remove-btn" on:click={() => bgImage = ''}>Remove</button>
             </div>
             <div class="form-group">
                 <label for="opacity">Background Opacity: {Math.round(bgOpacity * 100)}%</label>
@@ -188,13 +198,13 @@
                     <input 
                         type="color" 
                         value={color}
-                        oninput={(e) => colors = { ...colors, [category]: e.target.value }}
+                        on:input={(e) => colors = {...colors, [category]: e.target.value}}
                     />
                     <input 
                         type="text" 
                         value={color}
                         placeholder="#000000"
-                        oninput={(e) => colors = { ...colors, [category]: e.target.value }}
+                        on:input={(e) => colors = {...colors, [category]: e.target.value}}
                     />
                 </div>
             {/each}
@@ -203,8 +213,8 @@
         {#if colorWarning}<p class="warning">{colorWarning}</p>{/if}
 
         <div class="btn-row">
-            <button class="save-btn" onclick={saveColors}>Save Colors</button>
-            <button class="reset-btn" onclick={resetColors}>Reset to Default</button>
+            <button class="save-btn" on:click={saveColors}>Save Colors</button>
+            <button class="reset-btn" on:click={resetColors}>Reset to Default</button>
         </div>
         {#if saveColorStatus}<p class="status">{saveColorStatus}</p>{/if}
     </section>
