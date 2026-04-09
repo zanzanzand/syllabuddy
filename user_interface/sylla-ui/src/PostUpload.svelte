@@ -132,6 +132,18 @@
   }
 
   function attemptSave() {
+    saveError = ''
+    for (let i = 0; i < events.length; i++) {
+        const e = events[i]
+        if (!e.title || !e.title.trim()) {
+            saveError = `Event #${i + 1} is missing a title.`
+            return
+        }
+        if (!e.type) {
+            saveError = `Event #${i + 1} is missing a type.`
+            return
+        }
+    }
     showConfirm = true
   }
 
