@@ -11,13 +11,13 @@ jest.mock('../src/llm/date_parser', () => ({
         instructor: "Dr. Smith",
         semester: "1st Semester 2026",
         events: [
-            { title: "First Day",                           date: "2026-01-09", type: "class",        description: "Introduction" },
-            { title: "Event 2",                             date: "2026-01-16", type: "class",        description: "" },
-            { title: "Event 3",                             date: "2026-01-23", type: "class",        description: "" },
-            { title: "Event 4",                             date: "2026-01-30", type: "class",        description: "" },
-            { title: "Event 5",                             date: "2026-02-06", type: "class",        description: "" },
-            { title: "Office Hours",                        date: "2026-02-13", type: "consultation", description: "By appointment" },
-            { title: "Lecture-Discussion: Platonic Ethics", date: "2026-02-20", type: "class",        description: "" },
+            { title: "First Day", date: "2026-01-09", type: "class", description: "Introduction" },
+            { title: "Event 2", date: "2026-01-16", type: "class", description: "" },
+            { title: "Event 3", date: "2026-01-23", type: "class", description: "" },
+            { title: "Event 4", date: "2026-01-30", type: "class", description: "" },
+            { title: "Event 5", date: "2026-02-06", type: "class", description: "" },
+            { title: "Office Hours", date: "2026-02-13", type: "consultation", description: "By appointment" },
+            { title: "Lecture-Discussion: Platonic Ethics", date: "2026-02-20", type: "class", description: "" },
         ]
     })
 }))
