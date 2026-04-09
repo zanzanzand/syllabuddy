@@ -1,46 +1,47 @@
 <script>
-    import { calendarTheme, calendarBackground, backgroundOpacity, categoryColors } from './store.js'
+    import {calendarTheme, calendarBackground, backgroundOpacity, categoryColors} from './store.js'
+    import {onMount} from 'svelte'
 
     // Theme state
-    let selectedTheme = $state('light')
-    let bgImage = $state('')
-    let bgOpacity = $state(1)
-    let saveThemeStatus = $state('')
+    let selectedTheme = 'light'
+    let bgImage = ''
+    let bgOpacity = 1
+    let saveThemeStatus = ''
 
     // Color state
-    let colors = $state({
+    let colors = {
         'exam': '#FF6B6B',
         'assignment': '#4ECDC4',
         'project': '#45B7D1',
         'quiz': '#96CEB4',
         'other': '#DDA0DD'
-    })
-    let saveColorStatus = $state('')
-    let colorWarning = $state('')
+    }
+    let saveColorStatus = ''
+    let colorWarning = ''
 
     // Load preferences on mount
-    $effect(() => {
-        fetch('http://localhost:3000/preferences', { credentials: 'include' })
-            .then(res => res.json())
-            .then(data => {
-                if (data.calendarTheme) {
-                    selectedTheme = data.calendarTheme
-                    calendarTheme.set(data.calendarTheme)
-                }
-                if (data.calendarBackground) {
-                    bgImage = data.calendarBackground
-                    calendarBackground.set(data.calendarBackground)
-                }
-                if (data.backgroundOpacity !== undefined) {
-                    bgOpacity = data.backgroundOpacity
-                    backgroundOpacity.set(data.backgroundOpacity)
-                }
-                if (data.categoryColors) {
-                    colors = { ...data.categoryColors }
-                    categoryColors.set(colors)
-                }
-            })
-            .catch(err => console.error('Failed to load preferences:', err))
+    onMount(() => {
+    fetch('http://localhost:3000/preferences', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.calendarTheme) {
+                selectedTheme = data.calendarTheme
+                calendarTheme.set(data.calendarTheme)
+            }
+            if (data.calendarBackground) {
+                bgImage = data.calendarBackground
+                calendarBackground.set(data.calendarBackground)
+            }
+            if (data.backgroundOpacity !== undefined) {
+                bgOpacity = data.backgroundOpacity
+                backgroundOpacity.set(data.backgroundOpacity)
+            }
+            if (data.categoryColors) {
+                colors = { ...data.categoryColors }
+                categoryColors.set(colors)
+            }
+        })
+        .catch(err => console.error('Failed to load preferences:', err))
     })
 
     // Handle background image upload
