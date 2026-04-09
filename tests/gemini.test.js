@@ -1,5 +1,7 @@
 const request = require('supertest')
 const app = require('../src/app')
+const fs = require('fs')
+const path = require('path')
 const { parseSyllabus } = require('../src/llm/date_parser')
 const sleep = () => new Promise((resolve)=> setTimeout(resolve, 20000))
 
@@ -61,6 +63,19 @@ describe("Syllabuddy Gemini API Tests", () => {
 
         expect(Array.isArray(response.events)).toBe(true)
         expect(response.events[0].date).toBe(null)
+    })
+
+    test("Should parse a real PDF file", async () => {
+        const buffer = fs.readFileSync(path.join(__dirname, 'test_file.pdf'))
+        const response = await parseSyllabus(buffer, "application/pdf")
+        expect(response).toHaveProperty("course_title")
+        expect(response).toHaveProperty("course_code")
+        expect(response).toHaveProperty("instructor")
+        expect(response).toHaveProperty("semester")
+        expect(Array.isArray(response.events)).toBe(true)
+        expect(response.body.events[0].date).toContain("2026-01-09")
+        expect(response.body.events[5].type).toBe("consultation")
+        expect(response.body.events[6].title).toBe("Lecture-Discussion: Platonic Ethics")
     })
 
     test("This should error since first arg is not a buffer", async() => {
