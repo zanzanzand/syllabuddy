@@ -8,14 +8,19 @@ const MongoStore = require('connect-mongo').default
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const Syllabus = require('./models/Syllabus.js')
 const User = require('./models/User.js')
+const { Event } = require('./models/Event.js')
 const { parseSyllabus } = require('./llm/date_parser.js')
 const { createEvents } = require("ics")
+
 
 const app = express()
 
 
 // Temporarily allows all requests, will restrict later on for security.
-app.use(cors())
+app.use(cors({
+    origin: 'http://localhost:5174',  // your Svelte dev server
+    credentials: true
+}))
 app.use(express.json())
 
 app.use(session({
@@ -119,6 +124,27 @@ app.post('/upload', upload.single('syllabus'), async (req, res) => {
     console.error(error)
     res.status(500).json({ error: error.message })
   }
+})
+
+// Add a calendar event
+app.post('/events', isAuthenticated, async (req, res) => {
+    try {
+        const { title, start, end } = req.body
+        const event = await Event.create({ title, start, end })
+        res.status(201).json(event)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+// Get all calendar events
+app.get('/events', isAuthenticated, async (req, res) => {
+    try {
+        const events = await Event.find()
+        res.json(events)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
 })
 
 // Google Login
