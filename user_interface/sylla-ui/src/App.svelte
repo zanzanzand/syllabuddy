@@ -8,8 +8,8 @@
 
 <main>
   <div class="nav">
-    <button onclick={() => $currPage = 'calendar'}>Calendar</button>
-    <button onclick={() => $currPage = 'settings'}>Settings</button>
+    <button on:click={() => $currPage = 'calendar'}>Calendar</button>
+    <button on:click={() => $currPage = 'settings'}>Settings</button>
   </div>
 
   <div>
