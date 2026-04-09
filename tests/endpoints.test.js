@@ -4,6 +4,24 @@ const app = require('../src/app')
 const path = require('path')
 const mongoose = require('mongoose')
 
+jest.mock('../src/llm/date_parser', () => ({
+    parseSyllabus: jest.fn().mockResolvedValue({
+        course_title: "Philosophy of Ethics",
+        course_code: "PHIL101",
+        instructor: "Dr. Smith",
+        semester: "1st Semester 2026",
+        events: [
+            { title: "First Day",                           date: "2026-01-09", type: "class",        description: "Introduction" },
+            { title: "Event 2",                             date: "2026-01-16", type: "class",        description: "" },
+            { title: "Event 3",                             date: "2026-01-23", type: "class",        description: "" },
+            { title: "Event 4",                             date: "2026-01-30", type: "class",        description: "" },
+            { title: "Event 5",                             date: "2026-02-06", type: "class",        description: "" },
+            { title: "Office Hours",                        date: "2026-02-13", type: "consultation", description: "By appointment" },
+            { title: "Lecture-Discussion: Platonic Ethics", date: "2026-02-20", type: "class",        description: "" },
+        ]
+    })
+}))
+
 jest.setTimeout(120000)
 
 describe("Syllabuddy Backend Endpoint Tests", () => {
@@ -33,8 +51,6 @@ describe("Syllabuddy Backend Endpoint Tests", () => {
     })
     test("Upload", async() => {
         const testFile = path.join(__dirname, 'test_file.pdf')
-        console.log("Path: ", testFile);
-        
         const response = await request(app).post("/upload").attach("syllabus", testFile)
 
         
@@ -51,5 +67,10 @@ describe("Syllabuddy Backend Endpoint Tests", () => {
         expect(response.body.events[5].type).toBe("consultation")
         expect(response.body.events[6].title).toBe("Lecture-Discussion: Platonic Ethics")
 
+    })
+    test("Reject Upload if no File", async () => {
+        const response = await request(app).post("/upload")
+        expect(response.statusCode).toBe(400)
+        expect(response.body.error).toBe("No file uploaded.")
     })
 })
