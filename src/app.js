@@ -15,7 +15,10 @@ const app = express()
 
 
 // Temporarily allows all requests, will restrict later on for security.
-app.use(cors())
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}))
 app.use(express.json())
 
 app.use(session({
@@ -26,7 +29,9 @@ app.use(session({
         mongoUrl: process.env.MONGODB_CONNECTION
     }),
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24
+        maxAge: 1000 * 60 * 60 * 24,
+        secure: false,
+        sameSite: 'lax'
     }
 }))
 app.use(passport.initialize())
