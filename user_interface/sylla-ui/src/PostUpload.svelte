@@ -4,6 +4,10 @@
   const EVENT_TYPES = ['exam', 'assignment', 'project', 'consultation', 'lecture', 'other']
 
   let events = $state([])
+  let saved = $state(false)
+  let showConfirm = $state(false)
+  let saveError = $state('')
+  let cancelError = $state('')
 
   $effect(()=> {
     const sylla = $scannedSyllabus;
@@ -73,6 +77,7 @@
   }
 
   function toggleEdit(eventID) {
+    if (saved) return
     events = events.map(function(e) {
       if (e.eventID==eventID){
         return {
@@ -97,6 +102,7 @@
   }
 
   function addEvent() {
+    if (saved) return
     let id;
     if(crypto.randomUUID){
       id = crypto.randomUUID()
@@ -118,10 +124,91 @@
   }
 
   function removeEvent(eventID){
+    if (saved) return
     if (!confirm('Remove this event?')) return 
     events = events.filter(function(e) {
       return e.eventID != eventID
     })
+  }
+
+  function attemptSave() {
+    saveError = ''
+    for (let i = 0; i < events.length; i++) {
+        const e = events[i]
+        if (!e.title || !e.title.trim()) {
+            saveError = `Event #${i + 1} is missing a title.`
+            return
+        }
+        if (!e.type) {
+            saveError = `Event #${i + 1} is missing a type.`
+            return
+        }
+    }
+    showConfirm = true
+  }
+
+  async function confirmSave() {
+    showConfirm = false
+    saveError = ''
+
+    try {
+      const payload = {
+        SyllaID: $scannedSyllabus._id,
+        title: $scannedSyllabus.title,
+        code: $scannedSyllabus.code,
+        instructor: $scannedSyllabus.instructor,
+        semester: $scannedSyllabus.semester,
+        events: events.map(function(e){
+          return {
+            title: e.title,
+            date: e.date,
+            type: e.type,
+            description: e.description
+          }
+        })
+      }
+
+      const res = await fetch('http://localhost:3000/syllabus/save', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      })
+
+      if (!res.ok){
+        const body = await res.json()
+        throw new Error(body.error)
+      }
+
+      const result = await res.json()
+      saved = true
+      $scannedSyllabus = result
+      $currPage = 'calendar'
+
+    } catch(error) {
+      saveError = error.message
+    }
+  }
+
+  function cancelSave() {
+    showConfirm = false
+  }
+
+  async function cancelUpload() {
+    try {
+      const res = await fetch('http://localhost:3000/syllabus/delete/' + $scannedSyllabus._id,  {
+        method: 'DELETE',
+      })
+
+      if (!res.ok){
+        const body = await res.json()
+        throw new Error(body.error)
+      } 
+
+      $scannedSyllabus = null
+      $currPage = 'calendar'
+    } catch (error) {
+        cancelError = error.message
+    }
   }
 
 </script>
@@ -235,10 +322,33 @@
       {/each}
     </div>
   </section>
- 
+  
+  {#if showConfirm}
+      <div class="confirm-container">
+        <div class="confirm-box">
+          <h3>Confirm Save</h3>
+          <p>Save {events.length} event{#if events.length !== 1}s{/if}?</p>
+          <p class="confirm-hint">You won't be able to edit after saving.</p>
+          <div class="confirm-actions">
+            <button class="btn-secondary" onclick={cancelSave}>Cancel</button>
+            <button class="btn-primary" onclick={confirmSave}>Confirm</button>
+          </div>
+        </div>
+      </div>
+  {/if}
   <footer class="action-bar">
-    <button class="btn-secondary" onclick={() => $currPage = 'upload'}>Upload Another</button>
-    <button class="btn-primary" onclick={() => $currPage = 'calendar'}>View Calendar</button>
+    {#if saveError}
+      <p class="error-message">{saveError}</p>
+    {/if}
+
+    {#if cancelError}
+      <p class="error-message">{cancelError}</p>
+    {/if}
+
+    {#if !saved}
+      <button class="btn-primary" onclick={attemptSave} disabled={events.length==0}>Save Events</button>
+      <button class="btn-secondary" onclick={cancelUpload}>Cancel Upload</button>
+    {/if}
   </footer>
 </div>
 {/if}
@@ -433,5 +543,47 @@
   }
   .btn-remove:hover { 
     color: #dc2626; 
+  }
+  .error-message {
+    padding: 0.55rem 1rem;
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 10px;
+    color: #ef4444;
+    font-size: 0.85rem;
+    flex: 1;
+  }
+  .confirm-container {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .confirm-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  }
+  .confirm-box h3 { 
+    margin: 0 0 0.75rem; 
+  }
+  .confirm-box p { 
+    margin: 0.5rem 0; 
+  }
+  .confirm-hint { 
+    font-size: 0.8rem; 
+    color: #94a3b8; 
+  }
+  .confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
   }
 </style>

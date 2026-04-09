@@ -3,6 +3,7 @@
   import FileUpload from './FileUpload.svelte';
   import PostUpload from './PostUpload.svelte';
   import GradeCalculator from './GradeCalculator.svelte';
+  import Profile from './Profile.svelte';
   import { currPage, scannedSyllabus } from './store.js';
 </script>
 
@@ -40,6 +41,11 @@
 </div>
 
 <main>
+  <div class="sidebar">
+    <button on:click={() => currPage.set('calendar')}>Home</button>
+    <button on:click={() => currPage.set('profile')}>Profile</button>
+  </div>
+  
   <div>
     {#if $currPage === 'upload'}
       <FileUpload />
