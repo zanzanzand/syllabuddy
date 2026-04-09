@@ -75,9 +75,9 @@ describe("Syllabuddy Gemini API Tests", () => {
         expect(response).toHaveProperty("semester")
 
         expect(Array.isArray(response.events)).toBe(true)
-        expect(response.body.events[0].date).toContain("2026-01-09")
-        expect(response.body.events[5].type).toBe("consultation")
-        expect(response.body.events[6].title).toBe("Lecture-Discussion: Platonic Ethics")
+        expect(response.events[0].date).toContain("2026-01-09")
+        expect(response.events[5].type).toBe("consultation")
+        expect(response.events[6].title).toBe("Lecture-Discussion: Platonic Ethics")
     })
 
     test("This should parse multiple events with correct dates", async () => {
