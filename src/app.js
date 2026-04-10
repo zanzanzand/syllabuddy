@@ -30,7 +30,9 @@ app.use(session({
         mongoUrl: process.env.MONGODB_CONNECTION
     }),
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24
+        maxAge: 1000 * 60 * 60 * 24,
+        secure: false,
+        sameSite: 'lax'
     }
 }))
 app.use(passport.initialize())
@@ -318,6 +320,80 @@ app.delete('/delete-account', isAuthenticated, async (req, res) => {
         })
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete account.' })
+    }
+})
+
+// User preference
+app.get('/preferences', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id)
+        res.json({
+            calendarTheme: user.calendarTheme,
+            calendarBackground: user.calendarBackground,
+            backgroundOpacity: user.backgroundOpacity,
+            categoryColors: Object.fromEntries(user.categoryColors)
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch preferences.' })
+    }
+})
+
+// Update calendar theme
+app.put('/preferences/theme', isAuthenticated, async (req, res) => {
+    try {
+        const { calendarTheme, calendarBackground, backgroundOpacity } = req.body
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { calendarTheme, calendarBackground, backgroundOpacity },
+            { new: true }
+        )
+        res.json({
+            calendarTheme: user.calendarTheme,
+            calendarBackground: user.calendarBackground,
+            backgroundOpacity: user.backgroundOpacity
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update theme.' })
+    }
+})
+
+// Update category colors
+app.put('/preferences/colors', isAuthenticated, async (req, res) => {
+    try {
+        const { categoryColors } = req.body
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { categoryColors },
+            { new: true }
+        )
+        res.json({
+            categoryColors: Object.fromEntries(user.categoryColors)
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update category colors.' })
+    }
+})
+
+// Reset category colors to default
+app.put('/preferences/colors/reset', isAuthenticated, async (req, res) => {
+    try {
+        const defaultColors = {
+            'exam': '#FF6B6B',
+            'assignment': '#4ECDC4',
+            'project': '#45B7D1',
+            'quiz': '#96CEB4',
+            'other': '#DDA0DD'
+        }
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { categoryColors: defaultColors },
+            { new: true }
+        )
+        res.json({
+            categoryColors: Object.fromEntries(user.categoryColors)
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to reset category colors.' })
     }
 })
 

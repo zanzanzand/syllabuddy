@@ -2,6 +2,7 @@
   import Calendar from './PCalendar.svelte';
   import FileUpload from './FileUpload.svelte';
   import PostUpload from './PostUpload.svelte';
+  import Settings from './Settings.svelte';
   import GradeCalculator from './GradeCalculator.svelte';
   import Profile from './Profile.svelte';
   import { currPage, scannedSyllabus } from './store.js';
@@ -43,6 +44,11 @@
 </div>
 
 <main>
+  <div class="nav">
+    <button on:click={() => $currPage = 'calendar'}>Calendar</button>
+    <button on:click={() => $currPage = 'settings'}>Settings</button>
+  </div>
+
   
   <div>
     {#if $currPage === 'upload'}
@@ -72,6 +78,10 @@
         </ol>
       </div> 
     </div>
+  </div>
+  {:else if $currPage === 'settings'}
+      <Settings />
+    {/if}
   
   {/if}
   </div>
@@ -79,6 +89,12 @@
 </main>
 
 <style>
+  .nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1rem;
+    justify-content: flex-end;
+  }
   button{
     background-color: #e5e5e5;
     color: black;
