@@ -2,6 +2,7 @@
     import {Calendar, DayGrid, Interaction, List, TimeGrid} from '@event-calendar/core';
     import {currPage, calendarTheme, calendarBackground, backgroundOpacity, categoryColors} from './store.js';
     import Modal from './AddEventModal.svelte';
+    import { onMount } from 'svelte';
     let showModal = $state(false);
     
     let status = $state('');
@@ -38,12 +39,15 @@
     };
 
 
-    function handleSubmit (e) {
+    async function handleSubmit (e) {
         // Insert a event into the collection MongoDB
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
+
         console.log("Form Submitted:", data);
+
         submittedData = data;
         const newEvent = {
             title: data.title,
@@ -57,7 +61,33 @@
         events_ = [...events_, newEvent]
         ec.addEvent(newEvent)
 
+        const res = await fetch('http://localhost:3000/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',      // needed for session cookies
+        body: JSON.stringify(newEvent)
+        });
+
+        if (res.ok) {
+          status = 'Success!';
+          showModal = false;
+          events_ = [...events_, newEvent];
+          ec.addEvent(newEvent);
+        } else {
+          status = 'Error saving event.';
+        }
+
+    };
+
+    onMount(async () => {
+    const res = await fetch('http://localhost:3000/events', {
+        credentials: 'include'
+    });
+    if (res.ok) {
+        const saved = await res.json();
+        saved.forEach(event => ec.addEvent(event));
     }
+    });
 </script>
 
 <div
@@ -70,6 +100,8 @@
         <div class="bg-overlay" style="opacity: {1 - bgOpacity};"></div>
     {/if}
 
+<Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} />
+  
     <div id="addbtns">
         <button class="add" onclick={() => $currPage = 'upload'}>Upload a File</button>
         <button class="add" onclick={() => (showModal = true)}>Add Event</button>

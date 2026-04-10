@@ -8,18 +8,19 @@ const MongoStore = require('connect-mongo').default
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const Syllabus = require('./models/Syllabus.js')
 const User = require('./models/User.js')
+const { Event } = require('./models/Event.js')
 const { parseSyllabus } = require('./llm/date_parser.js')
 const { createEvents } = require("ics")
+
 
 const app = express()
 
 
 // Temporarily allows all requests, will restrict later on for security.
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost:5174',
     credentials: true
 }))
-
 app.use(express.json())
 
 app.use(session({
@@ -140,6 +141,28 @@ app.post('/upload', upload.single('syllabus'), async (req, res) => {
   }
 })
 
+// Add a calendar event
+app.post('/events', isAuthenticated, async (req, res) => {
+    try {
+        const { title, start, end } = req.body
+        const event = await Event.create({ title, start, end })
+        res.status(201).json(event)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+// Get all calendar events
+app.get('/events', isAuthenticated, async (req, res) => {
+    try {
+        const events = await Event.find()
+        res.json(events)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+// Google Login
 app.post('/syllabus/save', async (req, res) => {
     try {
         const payload = req.body
@@ -192,13 +215,13 @@ app.get('/auth/google',
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/' }),
     (req, res) => {
-        res.redirect('/')
+        res.redirect('http://localhost:5174')
     }
 )
 
 app.get('/logout', (req, res) => {
     req.logout(() => {
-        res.redirect('/')
+        res.redirect('http://localhost:5174')
     })
 })
 

@@ -5,12 +5,21 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+     start: { 
+        type: String 
+    },
+
+    end: { 
+        type: String 
+    },
+
     date: {
         type: Date,
     },
+    
     type: {
         type: String,
-        required: true
+        // required: true
     },
     description: {
         type: String,
@@ -21,3 +30,4 @@ const eventSchema = new mongoose.Schema({
 });
 
 module.exports = eventSchema;
+module.exports.Event = mongoose.model('Event', eventSchema);
