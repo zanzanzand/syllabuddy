@@ -1,6 +1,6 @@
 <script>
     import {Calendar, DayGrid, Interaction, List, TimeGrid} from '@event-calendar/core';
-    import { currPage } from './store.js';
+    import {currPage, calendarTheme, calendarBackground, backgroundOpacity, categoryColors} from './store.js';
     import Modal from './AddEventModal.svelte';
     import { onMount } from 'svelte';
     let showModal = $state(false);
@@ -10,6 +10,23 @@
     let ec = $state()
     let events_ = $state([])
     
+    let theme = $state('light');
+    let bgImage = $state('');
+    let bgOpacity = $state(1);
+    let catColors = $state({});
+
+    calendarTheme.subscribe(v => theme = v);
+    calendarBackground.subscribe(v => bgImage = v);
+    backgroundOpacity.subscribe(v => bgOpacity = v);
+    categoryColors.subscribe(v => catColors = v);
+
+    // get color for event based on category
+    function getEventColor(category) {
+        if (!category) return catColors['other'] ?? '#DDA0DD';
+        const key = category.toLowerCase();
+        return catColors[key] ?? catColors['other'] ?? '#DDA0DD';
+    }
+
     let options = {
         view: 'dayGridMonth',
         events:[],
@@ -36,8 +53,13 @@
             title: data.title,
             start: `${data.datestart} ${data.timestart}`,
             end: `${data.dateend} ${data.timeend}`,
+            backgroundColor: getEventColor(data.category), // apply color on add
             editable: true
         }
+        status = 'Success!';
+        e.currentTarget.reset();
+        events_ = [...events_, newEvent]
+        ec.addEvent(newEvent)
 
         const res = await fetch('http://localhost:3000/events', {
         method: 'POST',
@@ -68,54 +90,131 @@
     });
 </script>
 
-<div id="addbtns">
-    <button class="add" onclick={() => $currPage = 'upload'}>Upload a File</button>
-    <button class="add" onclick={() => (showModal = true)}> Add Event </button>
-</div>
+<div
+    class="calendar-wrapper theme-{theme}"
+    style="
+        {bgImage ? `background-image: url('${bgImage}'); background-size: cover; background-position: center;` : ''}
+    "
+>
+    {#if bgImage}
+        <div class="bg-overlay" style="opacity: {1 - bgOpacity};"></div>
+    {/if}
 
 <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} />
-
-<Modal bind:showModal>
-	{#snippet header()}
-		<h2>
-			New Event
-		</h2>
-	{/snippet}
-        
-  <form id="calendar-event-form" name="calendar-event-form" method="post" onsubmit={handleSubmit}>
-
-  <div class="form-group">
-    <label for="event-title">Event Title</label>
-    <input type="text" id="event-title" name="title" placeholder="e.g., Marketing Workshop" required>
-  </div>
-
-  <div class="form-row">
-    <div class="form-group">
-      <label for="date-start">Date Start: </label>
-      <input type="date" id="date-start" name="datestart" required>
+  
+    <div id="addbtns">
+        <button class="add" onclick={() => $currPage = 'upload'}>Upload a File</button>
+        <button class="add" onclick={() => (showModal = true)}>Add Event</button>
     </div>
-    <div class="form-group">
-      <label for="date-end">Date End: </label>
-      <input type="date" id="date-end" name="dateend" required>
-    </div>
-  </div>
 
-  <div class="form-row">
-    <div class="form-group">
-      <label for="time-start">Time Start: </label>
-      <input type="time" id="time-start" name="timestart" step="1" required>
-    </div>
-    <div class="form-group">
-      <label for="time-end">Time End: </label>
-      <input type="time" id="time-end" name="timeend" step="1" required>
-    </div>
-  </div>
+    <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} />
 
-  <button id="final" type="submit">Add to Calendar</button>
-</form>
-</Modal>
+    <Modal bind:showModal>
+        {#snippet header()}
+            <h2>New Event</h2>
+        {/snippet}
+
+        <form id="calendar-event-form" name="calendar-event-form" method="post" onsubmit={handleSubmit}>
+            <div class="form-group">
+                <label for="event-title">Event Title</label>
+                <input type="text" id="event-title" name="title" placeholder="e.g., Marketing Workshop" required>
+            </div>
+
+            <!-- Category dropdown so color can be applied -->
+            <div class="form-group">
+                <label for="event-category">Category</label>
+                <select id="event-category" name="category">
+                    <option value="exam">Exam</option>
+                    <option value="assignment">Assignment</option>
+                    <option value="project">Project</option>
+                    <option value="quiz">Quiz</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="date-start">Date Start</label>
+                    <input type="date" id="date-start" name="datestart" required>
+                </div>
+                <div class="form-group">
+                    <label for="date-end">Date End</label>
+                    <input type="date" id="date-end" name="dateend" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="time-start">Time Start</label>
+                    <input type="time" id="time-start" name="timestart" step="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="time-end">Time End</label>
+                    <input type="time" id="time-end" name="timeend" step="1" required>
+                </div>
+            </div>
+
+            <button id="final" type="submit">Add to Calendar</button>
+        </form>
+    </Modal>
+</div>
 
 <style>
+    .calendar-wrapper {
+        position: relative;
+        padding: 1rem;
+        border-radius: 12px;
+        overflow: hidden;
+        min-height: 400px;
+    }
+
+    .bg-overlay {
+        position: absolute;
+        inset: 0;
+        background: #000;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .calendar-wrapper > :not(.bg-overlay) {
+        position: relative;
+        z-index: 1;
+    }
+
+    .theme-light {
+        background-color: #ffffff;
+        color: #1a1a1a;
+    }
+
+    .theme-dark {
+        background-color: #1e1e2e;
+        color: #cdd6f4;
+    }
+
+    .theme-dark :global(.ec-toolbar),
+    .theme-dark :global(.ec-header),
+    .theme-dark :global(.ec-body),
+    .theme-dark :global(.ec-day),
+    .theme-dark :global(.ec-day-head) {
+        background-color: #1e1e2e !important;
+        color: #cdd6f4 !important;
+        border-color: #45475a !important;
+    }
+
+    .theme-high-contrast {
+        background-color: #000000;
+        color: #ffffff;
+    }
+
+    .theme-high-contrast :global(.ec-toolbar),
+    .theme-high-contrast :global(.ec-header),
+    .theme-high-contrast :global(.ec-body),
+    .theme-high-contrast :global(.ec-day),
+    .theme-high-contrast :global(.ec-day-head) {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border-color: #ffffff !important;
+    }
 
     #addbtns{
         display: flex;

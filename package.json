@@ -6,8 +6,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "jest",
     "client": "npm run dev --prefix user_interface/sylla-ui"
+    "test": "jest --testPathIgnorePatterns=tests/gemini.test.js",
+    "test-gemini": "jest tests/gemini.test.js"
   },
   "repository": {
     "type": "git",

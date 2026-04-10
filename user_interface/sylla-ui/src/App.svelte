@@ -3,6 +3,9 @@
   import Calendar from './PCalendar.svelte';
   import FileUpload from './FileUpload.svelte';
   import PostUpload from './PostUpload.svelte';
+  import Settings from './Settings.svelte';
+  import GradeCalculator from './GradeCalculator.svelte';
+  import Profile from './Profile.svelte';
   import { currPage, scannedSyllabus } from './store.js';
   import ProfileMenu from './ProfileMenu.svelte';
   import Charts from './Charts.svelte';
@@ -24,7 +27,39 @@
   });
 </script>
 
+<div class="navbar">
+  <div class="nav-left">
+  <button onclick={() => {    
+        window.history.pushState({}, '', '/');
+        currPage.set('calendar');
+      }}>
+    <h2 class="text-lg font-semibold text-center sm:text-left cursor-pointer"
+      >SyllaBuddy</h2>
+    </button>
+  </div>
+  <div class="nav-right">
+    <button onclick={() => {
+      window.history.pushState({}, '', '/upload');
+      currPage.set('upload');
+    }}>Upload</button>
+    <button onclick={() => {
+      window.history.pushState({}, '', '/calendar');
+      currPage.set('calendar');
+    }}>Calendar</button>
+    <button onclick={() => {
+      window.history.pushState({}, '', '/calculator');
+      currPage.set('calculator');
+    }}>Calculator</button>
+    <button onclick={() => currPage.set('profile')}>Profile</button>
+  </div>
+</div>
+
 <main>
+  <div class="nav">
+    <button onclick={() => $currPage = 'calendar'}>Calendar</button>
+    <button onclick={() => $currPage = 'settings'}>Settings</button>
+  </div>
+
   <div>
     {#if !isLoggedIn}
       <div class="landing">
@@ -44,6 +79,12 @@
         <Charts />
       {:else if $currPage === 'postUpload'}
         <PostUpload />
+      {:else if $currPage === 'calculator'}
+        <GradeCalculator />
+      {:else if $currPage === 'profile'}
+        <Profile />
+      {:else if $currPage === 'settings'}
+        <Settings />
       {:else if $currPage === 'calendar'}
         <Calendar />
         <div class="export-section">
@@ -68,23 +109,27 @@
 </main>
 
 <style>
-
   .navbar {
   display: flex;
   align-items: center;
   padding: 8px 16px;
   border-bottom: 1px solid #e5e5e5;
   margin-bottom: 16px;
-}
+  }
   .content {
     padding: 0 16px;
+  }
+  .nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1rem;
+    justify-content: flex-end;
   }
   button {
     background-color: #e5e5e5;
     color: black;
     font-weight: 500;
   }
-
   .export-section {
     margin-top: 25px;
     text-align: center;
@@ -96,5 +141,7 @@
     align-items: center;
     margin-top: 100px;
     gap: 20px;
+  main {
+    padding-top: 90px;
   }
 </style>

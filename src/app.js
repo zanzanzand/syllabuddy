@@ -18,7 +18,7 @@ const app = express()
 
 // Temporarily allows all requests, will restrict later on for security.
 app.use(cors({
-    origin: 'http://localhost:5174',  // your Svelte dev server
+    origin: 'http://localhost:5174',
     credentials: true
 }))
 app.use(express.json())
@@ -31,7 +31,9 @@ app.use(session({
         mongoUrl: process.env.MONGODB_CONNECTION
     }),
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24
+        maxAge: 1000 * 60 * 60 * 24,
+        secure: false,
+        sameSite: 'lax'
     }
 }))
 app.use(passport.initialize())
@@ -82,6 +84,19 @@ const upload = multer({
             cb(null, true)
         } else{
             cb(new Error('Invalid file type. Only PDF and PNG allowed.'))
+        }
+    }
+})
+
+const profileUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowed = ['image/jpeg', 'image/png']
+        if (allowed.includes(file.mimetype)) {
+            cb(null, true)
+        } else {
+            cb(new Error('Only JPG/PNG allowed'))
         }
     }
 })
@@ -148,6 +163,51 @@ app.get('/events', isAuthenticated, async (req, res) => {
 })
 
 // Google Login
+app.post('/syllabus/save', async (req, res) => {
+    try {
+        const payload = req.body
+
+        if (!payload.events || payload.events.length === 0) {
+            return res.status(400).json({ error: 'At least one event is required.' })
+        }
+
+        const syllabus = await Syllabus.findByIdAndUpdate(
+            payload.SyllaID,
+            {
+                title: payload.title,
+                code: payload.code,
+                instructor: payload.instructor,
+                semester: payload.semester,
+                events: payload.events,
+            },
+            { returnDocument: 'after' }
+        )
+
+        if (!syllabus) {
+            return res.status(404).json({ error: 'Syllabus not found.' })
+        }
+
+        res.status(200).json(syllabus)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Failed to save.' })
+    }
+})
+
+app.delete('/syllabus/delete/:id', async (req, res) => {
+    try {
+        const syllabus = await Syllabus.findByIdAndDelete(req.params.id)
+        if (!syllabus){
+            return res.status(404).json({ error: 'Syllabus not found.' })
+        }
+        res.status(200).json({ message: 'Deleted.'})
+    } catch(error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to delete.'})
+    }
+})
+
+//Google Login
 app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
 )
@@ -240,17 +300,24 @@ app.get('/profile', isAuthenticated, async (req, res) => {
 })
 
 // Update profile picture
-app.put('/profile/picture', isAuthenticated, async (req, res) => {
+app.put('/profile/picture', isAuthenticated, profileUpload.single('picture'), async (req, res) => {
     try {
-        const { profilePicture } = req.body
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' })
+        }
+
+        const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`
+
         const user = await User.findByIdAndUpdate(
             req.user._id,
-            { profilePicture },
+            { profilePicture: base64 },
             { new: true }
         )
+
         res.json({ profilePicture: user.profilePicture })
     } catch (error) {
-        res.status(500).json({ error: 'Failed to update profile picture.' })
+        console.error(error)
+        res.status(500).json({ error: 'Upload failed' })
     }
 })
 
@@ -276,6 +343,80 @@ app.delete('/delete-account', isAuthenticated, async (req, res) => {
         })
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete account.' })
+    }
+})
+
+// User preference
+app.get('/preferences', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id)
+        res.json({
+            calendarTheme: user.calendarTheme,
+            calendarBackground: user.calendarBackground,
+            backgroundOpacity: user.backgroundOpacity,
+            categoryColors: Object.fromEntries(user.categoryColors)
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch preferences.' })
+    }
+})
+
+// Update calendar theme
+app.put('/preferences/theme', isAuthenticated, async (req, res) => {
+    try {
+        const { calendarTheme, calendarBackground, backgroundOpacity } = req.body
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { calendarTheme, calendarBackground, backgroundOpacity },
+            { new: true }
+        )
+        res.json({
+            calendarTheme: user.calendarTheme,
+            calendarBackground: user.calendarBackground,
+            backgroundOpacity: user.backgroundOpacity
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update theme.' })
+    }
+})
+
+// Update category colors
+app.put('/preferences/colors', isAuthenticated, async (req, res) => {
+    try {
+        const { categoryColors } = req.body
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { categoryColors },
+            { new: true }
+        )
+        res.json({
+            categoryColors: Object.fromEntries(user.categoryColors)
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update category colors.' })
+    }
+})
+
+// Reset category colors to default
+app.put('/preferences/colors/reset', isAuthenticated, async (req, res) => {
+    try {
+        const defaultColors = {
+            'exam': '#FF6B6B',
+            'assignment': '#4ECDC4',
+            'project': '#45B7D1',
+            'quiz': '#96CEB4',
+            'other': '#DDA0DD'
+        }
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { categoryColors: defaultColors },
+            { new: true }
+        )
+        res.json({
+            categoryColors: Object.fromEntries(user.categoryColors)
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to reset category colors.' })
     }
 })
 
