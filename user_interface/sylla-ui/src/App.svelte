@@ -17,6 +17,7 @@
     if (res.ok) {
       user = await res.json();
       isLoggedIn = true;
+      currPage.set('calendar');
     } else {
       isLoggedIn = false;
     }
