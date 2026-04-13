@@ -13,8 +13,9 @@
     <div class="dropdown">
       <p class="username">{user.displayName}</p>
       <hr />
+      <button onclick={() => { currPage.set('calendar'); open = false; }}>Calendar</button>
       <button onclick={() => { currPage.set('charts'); open = false; }}>Dashboard</button>
-      <button>Settings</button>
+      <button onclick={() => { currPage.set('settings'); open = false; }}>Settings</button>
       <button onclick={() => window.location.href = 'http://localhost:3000/logout'}>Logout</button>
     </div>
   {/if}

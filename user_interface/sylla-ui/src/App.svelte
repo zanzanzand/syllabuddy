@@ -55,10 +55,6 @@
 </div>
 
 <main>
-  <div class="nav">
-    <button onclick={() => $currPage = 'calendar'}>Calendar</button>
-    <button onclick={() => $currPage = 'settings'}>Settings</button>
-  </div>
 
   <div>
     {#if !isLoggedIn}
@@ -119,12 +115,7 @@
   .content {
     padding: 0 16px;
   }
-  .nav {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 1rem;
-    justify-content: flex-end;
-  }
+
   button {
     background-color: #e5e5e5;
     color: black;
@@ -141,7 +132,9 @@
     align-items: center;
     margin-top: 100px;
     gap: 20px;
+  }
   main {
     padding-top: 90px;
   }
+
 </style>

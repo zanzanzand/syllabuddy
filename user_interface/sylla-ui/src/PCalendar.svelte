@@ -100,7 +100,7 @@
         <div class="bg-overlay" style="opacity: {1 - bgOpacity};"></div>
     {/if}
 
-<Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} />
+<!-- <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} /> -->
   
     <div id="addbtns">
         <button class="add" onclick={() => $currPage = 'upload'}>Upload a File</button>
