@@ -27,7 +27,7 @@
   });
 </script>
 
-<div class="navbar">
+<!-- <div class="navbar">
   <div class="nav-left">
   <button onclick={() => {    
         window.history.pushState({}, '', '/');
@@ -52,7 +52,7 @@
     }}>Calculator</button>
     <button onclick={() => currPage.set('profile')}>Profile</button>
   </div>
-</div>
+</div> -->
 
 <main>
 
@@ -83,7 +83,7 @@
         <Settings />
       {:else if $currPage === 'calendar'}
         <Calendar />
-        <div class="export-section">
+        <!-- <div class="export-section">
           <button onclick={() => window.location.href = 'http://localhost:3000/export'}>
             Export Calendar (.ics)
           </button>
@@ -97,7 +97,7 @@
               <li>Select the downloaded .ics file.</li>
             </ol>
           </div>
-        </div> 
+        </div>  -->
       {/if}
     </div>
     {/if}
@@ -133,8 +133,8 @@
     margin-top: 100px;
     gap: 20px;
   }
-  main {
+  /* main {
     padding-top: 90px;
-  }
+  } */
 
 </style>
