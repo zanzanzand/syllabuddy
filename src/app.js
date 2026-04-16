@@ -108,7 +108,7 @@ const isAuthenticated = (req, res, next) => {
     res.status(401).json({ error: 'Unauthorized. Please log in.' })
 }
 
-app.post('/upload', upload.single('syllabus'), async (req, res) => {
+app.post('/upload', isAuthenticated, upload.single('syllabus'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: "No file uploaded." })
 
@@ -119,6 +119,7 @@ app.post('/upload', upload.single('syllabus'), async (req, res) => {
             code: llmResponse.course_code,
             instructor: llmResponse.instructor,
             semester: llmResponse.semester,
+            userId: req.user._id,
             events: llmResponse.events.map(event => {
                 let date = null
                 if (event.date) {
@@ -162,8 +163,7 @@ app.get('/events', isAuthenticated, async (req, res) => {
     }
 })
 
-// Google Login
-app.post('/syllabus/save', async (req, res) => {
+app.post('/syllabus/save', isAuthenticated, async (req, res) => {
     try {
         const payload = req.body
 
@@ -172,7 +172,10 @@ app.post('/syllabus/save', async (req, res) => {
         }
 
         const syllabus = await Syllabus.findByIdAndUpdate(
-            payload.SyllaID,
+            { 
+                _id: payload.SyllaID,
+                userId: req.user._id
+            },
             {
                 title: payload.title,
                 code: payload.code,
@@ -196,7 +199,10 @@ app.post('/syllabus/save', async (req, res) => {
 
 app.delete('/syllabus/delete/:id', async (req, res) => {
     try {
-        const syllabus = await Syllabus.findByIdAndDelete(req.params.id)
+        const syllabus = await Syllabus.findByIdAndDelete({
+            _id: req.params.id,
+            userId: req.user._id
+        })
         if (!syllabus){
             return res.status(404).json({ error: 'Syllabus not found.' })
         }
@@ -225,10 +231,10 @@ app.get('/logout', (req, res) => {
     })
 })
 
-app.get('/export', async (req, res) => {
+app.get('/export', isAuthenticated, async (req, res) => {
     try {
 
-        const syllabi = await Syllabus.find()
+        const syllabi = await Syllabus.find({userId: req.user._id})
 
         const events = []
 
