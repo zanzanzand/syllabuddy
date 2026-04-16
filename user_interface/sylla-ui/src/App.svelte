@@ -141,6 +141,7 @@
     align-items: center;
     margin-top: 100px;
     gap: 20px;
+  }
   main {
     padding-top: 90px;
   }
