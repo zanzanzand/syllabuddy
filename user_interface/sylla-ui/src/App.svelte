@@ -56,7 +56,6 @@
 
 <main>
   <div class="nav">
-    <button onclick={() => $currPage = 'calendar'}>Calendar</button>
     <button onclick={() => $currPage = 'settings'}>Settings</button>
   </div>
 
@@ -87,21 +86,25 @@
         <Settings />
       {:else if $currPage === 'calendar'}
         <Calendar />
+        
         <div class="export-section">
-          <button onclick={() => window.location.href = 'http://localhost:3000/export'}>
-            Export Calendar (.ics)
-          </button>
-          <div>
-            <h2>How to Import to Google Calendar</h2>
-            <ol>
-              <li>Click the Export Calendar button.</li>
-              <li>Download the .ics file.</li>
-              <li>Open Google Calendar.</li>
-              <li>Go to Settings → Import.</li>
-              <li>Select the downloaded .ics file.</li>
-            </ol>
+          <div class="export-card">
+            <button class="export-btn"
+              onclick={() => window.location.href = 'http://localhost:3000/export'}>
+              ⬇ Export .ics
+            </button>
+            <div class="instructions">
+              <h3>How to Import</h3>
+                <ol>
+                  <li>Download the .ics file</li>
+                  <li>Open Google Calendar</li>
+                  <li>Go to <b>Settings → Import</b></li>
+                  <li>Select your downloaded file</li>
+                </ol>
+            </div>
           </div>
         </div> 
+
       {/if}
     </div>
     {/if}
@@ -130,18 +133,55 @@
     color: black;
     font-weight: 500;
   }
-  .export-section {
-    margin-top: 25px;
-    text-align: center;
-  }
 
-  .landing {
+.export-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.export-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px 28px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.export-btn {
+  margin: 15px 0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #6d28d9;
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.export-btn:hover {
+  background: #5b21b6;
+  transform: translateY(-1px);
+}
+
+.instructions {
+  color: #666;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.landing {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-top: 100px;
     gap: 20px;
-  main {
+}
+  
+main {
     padding-top: 90px;
-  }
+}
 </style>
