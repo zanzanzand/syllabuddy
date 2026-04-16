@@ -21,7 +21,7 @@ Required JSON structure:
   "events": [
     {
       "title": "exact event name from syllabus",
-      "date": "YYYY-MM-DD",
+      "startDate": "YYYY-MM-DD",
       "type": "lecture|exam|assignment|quiz|project|consultation|break|defense",
       "description": "additional details if available",
       "weight": "grade percentage if mentioned"
@@ -33,9 +33,9 @@ IMPORTANT:
 - Include recurring lectures/classes with individual dates
 - Capture submission deadlines, consultation dates, exam schedules
 - If date format is unclear, use best judgment to convert to YYYY-MM-DD
-- If date cannot be converted to YYYY-MM-DD, set it to null
-- Never return empty strings for date fields
-- Empty fields should be empty strings "", not null`
+- If date cannot be converted to YYYY-MM-DD, set startDate to null
+- startDate must always be either a valid YYYY-MM-DD string or null, never an empty string
+- All other empty fields should be empty strings "", not null`
 
 /* 
 IMPORTANT:

@@ -5,24 +5,23 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-     start: { 
-        type: String 
+    startDate: { 
+        type: Date 
     },
-
-    end: { 
-        type: String 
+    endDate: { 
+        type: Date
     },
-
-    date: {
-        type: Date,
-    },
-    
     type: {
         type: String,
         // required: true
     },
     description: {
         type: String,
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
     // grading: gradeSchema,
 }, {

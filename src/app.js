@@ -122,14 +122,15 @@ app.post('/upload', isAuthenticated, upload.single('syllabus'), async (req, res)
             userId: req.user._id,
             events: llmResponse.events.map(event => {
                 let date = null
-                if (event.date) {
-                    date = new Date(event.date)
+                if (event.startDate) {
+                    date = new Date(event.startDate)
                 }
                 return {
                     title: event.title,
-                    date: date,
+                    startDate: date,
                     type: event.type,
-                    description: event.description
+                    description: event.description,
+                    userId: req.user._id
                 }
       })
     })
@@ -145,8 +146,8 @@ app.post('/upload', isAuthenticated, upload.single('syllabus'), async (req, res)
 // Add a calendar event
 app.post('/events', isAuthenticated, async (req, res) => {
     try {
-        const { title, start, end } = req.body
-        const event = await Event.create({ title, start, end })
+        const { title, startDate, endDate, type, description } = req.body
+        const event = await Event.create({ title, startDate, endDate, type, description, userId: req.user._id })
         res.status(201).json(event)
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -156,7 +157,7 @@ app.post('/events', isAuthenticated, async (req, res) => {
 // Get all calendar events
 app.get('/events', isAuthenticated, async (req, res) => {
     try {
-        const events = await Event.find()
+        const events = await Event.find({ userId: req.user._id })
         res.json(events)
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -241,7 +242,7 @@ app.get('/export', isAuthenticated, async (req, res) => {
         syllabi.forEach(syllabus => {
             syllabus.events.forEach(event => {
 
-                const date = new Date(event.date)
+                const date = new Date(event.startDate)
 
                 events.push({
                     title: event.title,
