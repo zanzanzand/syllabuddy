@@ -51,9 +51,11 @@
         submittedData = data;
         const newEvent = {
             title: data.title,
-            start: `${data.datestart} ${data.timestart}`,
-            end: `${data.dateend} ${data.timeend}`,
-            backgroundColor: getEventColor(data.category), // apply color on add
+            startDate: data.startdate,
+            endDate: data.enddate || null,
+            type: data.type,
+            description: data.description,
+            backgroundColor: getEventColor(data.type), // apply color on add
             editable: true
         }
         status = 'Success!';
@@ -123,7 +125,7 @@
             <!-- Category dropdown so color can be applied -->
             <div class="form-group">
                 <label for="event-category">Category</label>
-                <select id="event-category" name="category">
+                <select id="event-category" name="type">
                     <option value="exam">Exam</option>
                     <option value="assignment">Assignment</option>
                     <option value="project">Project</option>
@@ -134,23 +136,19 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="date-start">Date Start</label>
-                    <input type="date" id="date-start" name="datestart" required>
+                    <label for="event-start-date">Start Date</label>
+                    <input type="date" id="event-start-date" name="startdate" required>
                 </div>
                 <div class="form-group">
-                    <label for="date-end">Date End</label>
-                    <input type="date" id="date-end" name="dateend" required>
+                    <label for="event-end-date">End Date</label>
+                    <input type="date" id="event-end-date" name="enddate">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="time-start">Time Start</label>
-                    <input type="time" id="time-start" name="timestart" step="1" required>
-                </div>
-                <div class="form-group">
-                    <label for="time-end">Time End</label>
-                    <input type="time" id="time-end" name="timeend" step="1" required>
+                    <label for="event-desc">Description</label>
+                    <textarea id="event-desc" name="description" rows="2"></textarea>
                 </div>
             </div>
 
