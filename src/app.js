@@ -115,11 +115,11 @@ app.post('/upload', isAuthenticated, upload.single('syllabus'), async (req, res)
         const llmResponse = await parseSyllabus(req.file.buffer, req.file.mimetype)
 
         const syllabus = await Syllabus.create({
-            userID: req.user._id,
             title: llmResponse.course_title,
             code: llmResponse.course_code,
             instructor: llmResponse.instructor,
             semester: llmResponse.semester,
+            userId: req.user._id,
             events: llmResponse.events.map(event => {
                 let date = null
                 if (event.date) {
@@ -174,7 +174,7 @@ app.post('/syllabus/save', isAuthenticated, async (req, res) => {
         const syllabus = await Syllabus.findByIdAndUpdate(
             { 
                 _id: payload.SyllaID,
-                userID: req.user._id
+                userId: req.user._id
             },
             {
                 title: payload.title,
@@ -201,7 +201,7 @@ app.delete('/syllabus/delete/:id', async (req, res) => {
     try {
         const syllabus = await Syllabus.findByIdAndDelete({
             _id: req.params.id,
-            userID: req.user._id
+            userId: req.user._id
         })
         if (!syllabus){
             return res.status(404).json({ error: 'Syllabus not found.' })
@@ -234,7 +234,7 @@ app.get('/logout', (req, res) => {
 app.get('/export', isAuthenticated, async (req, res) => {
     try {
 
-        const syllabi = await Syllabus.find({userID: req.user._id})
+        const syllabi = await Syllabus.find({userId: req.user._id})
 
         const events = []
 
