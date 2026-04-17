@@ -51,8 +51,8 @@
         submittedData = data;
         const newEvent = {
             title: data.title,
-            startDate: data.startdate,
-            endDate: data.enddate || null,
+            start: new Date(`${data.startdate}T00:00:00`),
+            end: new Date(`${data.enddate ? data.enddate : data.startdate}T23:59:59`),
             type: data.type,
             description: data.description,
             backgroundColor: getEventColor(data.type), // apply color on add
@@ -87,7 +87,11 @@
     });
     if (res.ok) {
         const saved = await res.json();
-        saved.forEach(event => ec.addEvent(event));
+        saved.forEach(event => ec.addEvent({
+            ...event,
+            start: new Date(event.startDate || event.start),
+            end: new Date(event.endDate || event.end || event.startDate || event.start)
+        }));
     }
     });
 </script>
@@ -110,7 +114,7 @@
         <button class="add" onclick={() => window.location.href = 'http://localhost:3000/export'}>Export</button>
     </div>
 
-    <!-- <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} /> -->
+    <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} />
 
     <Modal bind:showModal>
         {#snippet header()}

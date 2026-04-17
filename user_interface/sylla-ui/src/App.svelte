@@ -62,6 +62,7 @@
   </div>
 </main>
 
+<style>
 .navbar {
   display: flex;
   align-items: center;
