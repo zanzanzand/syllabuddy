@@ -202,7 +202,7 @@ app.post('/syllabus/save', isAuthenticated, async (req, res) => {
     }
 })
 
-app.delete('/syllabus/delete/:id', async (req, res) => {
+app.delete('/syllabus/delete/:id', isAuthenticated, async (req, res) => {
     try {
         const syllabus = await Syllabus.findByIdAndDelete({
             _id: req.params.id,
