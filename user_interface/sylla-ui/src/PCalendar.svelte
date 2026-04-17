@@ -109,7 +109,7 @@
         <button class="add" onclick={() => (showModal = true)}>Add Event</button>
     </div>
 
-    <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} />
+    <!-- <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} /> -->
 
     <Modal bind:showModal>
         {#snippet header()}
