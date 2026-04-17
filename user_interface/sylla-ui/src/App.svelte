@@ -25,6 +25,10 @@
       isLoggedIn = false;
     }
   });
+
+  function logout() {
+  window.location.href = 'http://localhost:3000/logout';
+}
 </script>
 
 <main>
@@ -65,6 +69,10 @@
 
         <button onclick={() => currPage.set('profile')}>
           Profile
+        </button>
+
+        <button onclick={logout}>
+          Logout
         </button>
       </div>
     </div>
