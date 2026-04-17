@@ -198,6 +198,7 @@
     try {
       const res = await fetch('http://localhost:3000/syllabus/delete/' + $scannedSyllabus._id,  {
         method: 'DELETE',
+        credentials: 'include'
       })
 
       if (!res.ok){
