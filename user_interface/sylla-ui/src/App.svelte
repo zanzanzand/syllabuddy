@@ -27,33 +27,6 @@
   });
 </script>
 
-<!-- <div class="navbar">
-  <div class="nav-left">
-  <button onclick={() => {    
-        window.history.pushState({}, '', '/');
-        currPage.set('calendar');
-      }}>
-    <h2 class="text-lg font-semibold text-center sm:text-left cursor-pointer"
-      >SyllaBuddy</h2>
-    </button>
-  </div>
-  <div class="nav-right">
-    <button onclick={() => {
-      window.history.pushState({}, '', '/upload');
-      currPage.set('upload');
-    }}>Upload</button>
-    <button onclick={() => {
-      window.history.pushState({}, '', '/calendar');
-      currPage.set('calendar');
-    }}>Calendar</button>
-    <button onclick={() => {
-      window.history.pushState({}, '', '/calculator');
-      currPage.set('calculator');
-    }}>Calculator</button>
-    <button onclick={() => currPage.set('profile')}>Profile</button>
-  </div>
-</div> -->
-
 <main>
 
   <div>
@@ -83,29 +56,13 @@
         <Settings />
       {:else if $currPage === 'calendar'}
         <Calendar />
-        <!-- <div class="export-section">
-          <button onclick={() => window.location.href = 'http://localhost:3000/export'}>
-            Export Calendar (.ics)
-          </button>
-          <div>
-            <h2>How to Import to Google Calendar</h2>
-            <ol>
-              <li>Click the Export Calendar button.</li>
-              <li>Download the .ics file.</li>
-              <li>Open Google Calendar.</li>
-              <li>Go to Settings → Import.</li>
-              <li>Select the downloaded .ics file.</li>
-            </ol>
-          </div>
-        </div>  -->
       {/if}
     </div>
     {/if}
   </div>
 </main>
 
-<style>
-  .navbar {
+.navbar {
   display: flex;
   align-items: center;
   padding: 8px 16px;
@@ -121,11 +78,6 @@
     color: black;
     font-weight: 500;
   }
-  .export-section {
-    margin-top: 25px;
-    text-align: center;
-  }
-
   .landing {
     display: flex;
     flex-direction: column;
@@ -133,8 +85,5 @@
     margin-top: 100px;
     gap: 20px;
   }
-  /* main {
-    padding-top: 90px;
-  } */
 
 </style>

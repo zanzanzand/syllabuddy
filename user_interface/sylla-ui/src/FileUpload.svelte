@@ -47,6 +47,7 @@
       const res = await fetch("http://localhost:3000/upload", {
         method: "POST",
         body: formData,
+        credentials: 'include',
       });
 
       status = "preprocessing";

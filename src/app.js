@@ -9,7 +9,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy
 const Syllabus = require('./models/Syllabus.js')
 const User = require('./models/User.js')
 const { Event } = require('./models/Event.js')
-const { parseSyllabus } = require('./llm/date_parser.js')
+const { parseSyllabus, parseGradeWeights } = require('./llm/date_parser.js')
 const { createEvents } = require("ics")
 
 
@@ -108,27 +108,33 @@ const isAuthenticated = (req, res, next) => {
     res.status(401).json({ error: 'Unauthorized. Please log in.' })
 }
 
-app.post('/upload', upload.single('syllabus'), async (req, res) => {
+app.post('/upload', isAuthenticated, upload.single('syllabus'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: "No file uploaded." })
 
-        const llmResponse = await parseSyllabus(req.file.buffer, req.file.mimetype)
+        const [llmResponse, gradeResponse] = await Promise.all([
+            parseSyllabus(req.file.buffer, req.file.mimetype),
+            parseGradeWeights(req.file.buffer, req.file.mimetype)
+        ])
 
         const syllabus = await Syllabus.create({
             title: llmResponse.course_title,
             code: llmResponse.course_code,
             instructor: llmResponse.instructor,
             semester: llmResponse.semester,
+            userId: req.user._id,
+            grading: gradeResponse.grading,
             events: llmResponse.events.map(event => {
                 let date = null
-                if (event.date) {
-                    date = new Date(event.date)
+                if (event.startDate) {
+                    date = new Date(event.startDate)
                 }
                 return {
                     title: event.title,
-                    date: date,
+                    startDate: date,
                     type: event.type,
-                    description: event.description
+                    description: event.description,
+                    userId: req.user._id
                 }
       })
     })
@@ -144,8 +150,8 @@ app.post('/upload', upload.single('syllabus'), async (req, res) => {
 // Add a calendar event
 app.post('/events', isAuthenticated, async (req, res) => {
     try {
-        const { title, start, end } = req.body
-        const event = await Event.create({ title, start, end })
+        const { title, startDate, endDate, type, description } = req.body
+        const event = await Event.create({ title, startDate, endDate, type, description, userId: req.user._id })
         res.status(201).json(event)
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -155,15 +161,14 @@ app.post('/events', isAuthenticated, async (req, res) => {
 // Get all calendar events
 app.get('/events', isAuthenticated, async (req, res) => {
     try {
-        const events = await Event.find()
+        const events = await Event.find({ userId: req.user._id })
         res.json(events)
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
 })
 
-// Google Login
-app.post('/syllabus/save', async (req, res) => {
+app.post('/syllabus/save', isAuthenticated, async (req, res) => {
     try {
         const payload = req.body
 
@@ -172,7 +177,10 @@ app.post('/syllabus/save', async (req, res) => {
         }
 
         const syllabus = await Syllabus.findByIdAndUpdate(
-            payload.SyllaID,
+            { 
+                _id: payload.SyllaID,
+                userId: req.user._id
+            },
             {
                 title: payload.title,
                 code: payload.code,
@@ -194,9 +202,12 @@ app.post('/syllabus/save', async (req, res) => {
     }
 })
 
-app.delete('/syllabus/delete/:id', async (req, res) => {
+app.delete('/syllabus/delete/:id', isAuthenticated, async (req, res) => {
     try {
-        const syllabus = await Syllabus.findByIdAndDelete(req.params.id)
+        const syllabus = await Syllabus.findByIdAndDelete({
+            _id: req.params.id,
+            userId: req.user._id
+        })
         if (!syllabus){
             return res.status(404).json({ error: 'Syllabus not found.' })
         }
@@ -225,17 +236,17 @@ app.get('/logout', (req, res) => {
     })
 })
 
-app.get('/export', async (req, res) => {
+app.get('/export', isAuthenticated, async (req, res) => {
     try {
 
-        const syllabi = await Syllabus.find()
+        const syllabi = await Syllabus.find({userId: req.user._id})
 
         const events = []
 
         syllabi.forEach(syllabus => {
             syllabus.events.forEach(event => {
 
-                const date = new Date(event.date)
+                const date = new Date(event.startDate)
 
                 events.push({
                     title: event.title,

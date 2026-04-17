@@ -94,7 +94,7 @@
 
         {#if file}
             <p>Preview:</p>
-            <img src={URL.createObjectURL(file)} width="120" />
+            <img src={URL.createObjectURL(file)} alt="profile-pictre" width="120" />
         {/if}
 
         <br /><br />

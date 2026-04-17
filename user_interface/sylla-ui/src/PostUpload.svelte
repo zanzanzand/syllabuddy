@@ -171,7 +171,8 @@
       const res = await fetch('http://localhost:3000/syllabus/save', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        credentials: 'include'
       })
 
       if (!res.ok){
@@ -197,6 +198,7 @@
     try {
       const res = await fetch('http://localhost:3000/syllabus/delete/' + $scannedSyllabus._id,  {
         method: 'DELETE',
+        credentials: 'include'
       })
 
       if (!res.ok){

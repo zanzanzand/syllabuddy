@@ -5,18 +5,12 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-     start: { 
-        type: String 
+    startDate: { 
+        type: Date 
     },
-
-    end: { 
-        type: String 
+    endDate: { 
+        type: Date
     },
-
-    date: {
-        type: Date,
-    },
-    
     type: {
         type: String,
         // required: true
@@ -24,7 +18,11 @@ const eventSchema = new mongoose.Schema({
     description: {
         type: String,
     },
-    // grading: gradeSchema,
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
 }, {
     timestamps: true
 });
