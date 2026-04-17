@@ -5,7 +5,7 @@ const path = require('path');
 
 const ai = new GoogleGenAI({apiKey: API_KEY});
 // Prompt is the most CRITICAL aspect of the parser. This is the working prompt, can be improved in later iterations.
-const prompt = `You are a syllabus parser. Read this ENTIRE multi-page syllabus document and extract ALL information.
+const syllabusPrompt = `You are a syllabus parser. Read this ENTIRE multi-page syllabus document and extract ALL information.
 
 CRITICAL INSTRUCTIONS:
 1. Scan EVERY page for dates, deadlines, exams, assignments, projects
@@ -37,6 +37,26 @@ IMPORTANT:
 - startDate must always be either a valid YYYY-MM-DD string or null, never an empty string
 - All other empty fields should be empty strings "", not null`
 
+const gradePrompt = `You are a grading policy extractor. Read this syllabus and extract the grading breakdown.
+
+Return ONLY valid JSON - no markdown, no explanations:
+{
+  "grading": {
+    "exam": <number or null>,
+    "assignment": <number or null>,
+    "project": <number or null>,
+    "quiz": <number or null>,
+    "recitation": <number or null>,
+    "other": <number or null>
+  }
+}
+
+IMPORTANT:
+- Values are percentages (0-100)
+- If a category is not mentioned, set it to null
+- If percentages are given per individual item, sum them into their category total
+- Only return the JSON object, nothing else`
+
 /* 
 IMPORTANT:
 Gemini 2.5 Flash API has the following limits to take note of:
@@ -47,11 +67,10 @@ EACH iteration of this main function is 1 request, to avoid req limit when testi
 before running the test again.
 */
 const parseSyllabus = async(fileBuffer, mimeType)=>{
-    // Request 1 - Content Generation (Hitting the "send" on the request)
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: [
-            prompt,
+            syllabusPrompt,
             {
                 inlineData: {
                     mimeType: mimeType,
@@ -67,4 +86,24 @@ const parseSyllabus = async(fileBuffer, mimeType)=>{
     return JSON.parse(response.text)
 }
 
-module.exports = { parseSyllabus }
+const parseGradeWeights = async(fileBuffer, mimeType)=>{
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [
+            gradePrompt,
+            {
+                inlineData: {
+                    mimeType: mimeType,
+                    data: fileBuffer.toString("base64")
+                }
+            }
+        ],
+        config: {
+            responseMimeType: "application/json",
+            temperature: 0
+        }
+    });
+    return JSON.parse(response.text)
+}
+
+module.exports = { parseSyllabus, parseGradeWeights }
