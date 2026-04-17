@@ -15,6 +15,7 @@
       <hr />
       <button onclick={() => { currPage.set('calendar'); open = false; }}>Calendar</button>
       <button onclick={() => { currPage.set('charts'); open = false; }}>Dashboard</button>
+      <button onclick={() => { currPage.set('calculator'); open = false; }}>Calculator</button>
       <button onclick={() => { currPage.set('settings'); open = false; }}>Settings</button>
       <button onclick={() => window.location.href = 'http://localhost:3000/logout'}>Logout</button>
     </div>
