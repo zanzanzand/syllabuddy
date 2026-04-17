@@ -59,7 +59,7 @@
         status = 'Success!';
         e.currentTarget.reset();
         events_ = [...events_, newEvent]
-        ec.addEvent(newEvent)
+        // ec.addEvent(newEvent)
 
         const res = await fetch('http://localhost:3000/events', {
         method: 'POST',
