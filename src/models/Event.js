@@ -23,7 +23,6 @@ const eventSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    // grading: gradeSchema,
 }, {
     timestamps: true
 });

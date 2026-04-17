@@ -9,7 +9,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy
 const Syllabus = require('./models/Syllabus.js')
 const User = require('./models/User.js')
 const { Event } = require('./models/Event.js')
-const { parseSyllabus } = require('./llm/date_parser.js')
+const { parseSyllabus, parseGradeWeights } = require('./llm/date_parser.js')
 const { createEvents } = require("ics")
 
 
@@ -112,7 +112,10 @@ app.post('/upload', isAuthenticated, upload.single('syllabus'), async (req, res)
     try {
         if (!req.file) return res.status(400).json({ error: "No file uploaded." })
 
-        const llmResponse = await parseSyllabus(req.file.buffer, req.file.mimetype)
+        const [llmResponse, gradeResponse] = await Promise.all([
+            parseSyllabus(req.file.buffer, req.file.mimetype),
+            parseGradeWeights(req.file.buffer, req.file.mimetype)
+        ])
 
         const syllabus = await Syllabus.create({
             title: llmResponse.course_title,
@@ -120,6 +123,7 @@ app.post('/upload', isAuthenticated, upload.single('syllabus'), async (req, res)
             instructor: llmResponse.instructor,
             semester: llmResponse.semester,
             userId: req.user._id,
+            grading: gradeResponse.grading,
             events: llmResponse.events.map(event => {
                 let date = null
                 if (event.startDate) {

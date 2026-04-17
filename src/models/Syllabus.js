@@ -23,6 +23,32 @@ const syllabusSchema = new mongoose.Schema({
         required: true
     },
     events: [eventSchema],
+    grading: {
+        exam: { 
+            type: Number, 
+            default: null
+        },
+        assignment: { 
+            type: Number, 
+            default: null
+        },
+        project: { 
+            type: Number, 
+            default: null
+        },
+        quiz: { 
+            type: Number, 
+            default: null
+        },
+        recitation: { 
+            type: Number, 
+            default: null
+        },
+        other: { 
+            type: Number, 
+            default: null
+        }
+    }
 }, {
     timestamps: true
 });
