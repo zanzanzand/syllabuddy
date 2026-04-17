@@ -61,7 +61,7 @@
         status = 'Success!';
         e.currentTarget.reset();
         events_ = [...events_, newEvent]
-        ec.addEvent(newEvent)
+        // ec.addEvent(newEvent)
 
         const res = await fetch('http://localhost:3000/events', {
         method: 'POST',
@@ -102,11 +102,12 @@
         <div class="bg-overlay" style="opacity: {1 - bgOpacity};"></div>
     {/if}
 
-<Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} />
+<!-- <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} /> -->
   
     <div id="addbtns">
-        <button class="add" onclick={() => $currPage = 'upload'}>Upload a File</button>
+        <button class="add" onclick={() => $currPage = 'upload'}>Upload Syllabus</button>
         <button class="add" onclick={() => (showModal = true)}>Add Event</button>
+        <button class="add" onclick={() => window.location.href = 'http://localhost:3000/export'}>Export</button>
     </div>
 
     <!-- <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} /> -->
