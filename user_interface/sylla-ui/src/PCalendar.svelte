@@ -51,6 +51,8 @@
         submittedData = data;
         const newEvent = {
             title: data.title,
+            start: new Date(`${data.startdate}T00:00:00`),
+            end: new Date(`${data.enddate ? data.enddate : data.startdate}T23:59:59`),
             startDate: new Date(`${data.startdate}T00:00:00`),
             endDate: new Date(`${data.enddate ? data.enddate : data.startdate}T23:59:59`),
             type: data.type,
@@ -90,7 +92,8 @@
         saved.forEach(event => ec.addEvent({
             ...event,
             start: new Date(event.startDate || event.start),
-            end: new Date(event.endDate || event.end || event.startDate || event.start)
+            end: new Date(event.endDate || event.end || event.startDate || event.start),
+            backgroundColor: getEventColor(event.type)
         }));
     }
     });
