@@ -24,7 +24,8 @@
         let title = ''
         if (e.title) {title = e.title}
 
-        let date = toDateInputValue(e.date)
+        let startDate = toDateInputValue(e.startDate)
+        let endDate = toDateInputValue(e.endDate)
 
         let type = 'other'
         if (e.type) {type = e.type}
@@ -35,7 +36,8 @@
         return {
           eventID: id,
           title: title,
-          date: date,
+          startDate: startDate,
+          endDate: endDate,
           type: type,
           description: description,
           isNew: false,
@@ -114,7 +116,8 @@
     events = [...events, {
       eventID: id,
       title: '',
-      date: '',
+      startDate: '',
+      endDate: '',
       type: '',
       description: '',
       isNew: true,
@@ -161,9 +164,11 @@
         events: events.map(function(e){
           return {
             title: e.title,
-            date: e.date,
+            startDate: e.startDate,
+            endDate: e.endDate || null,
             type: e.type,
-            description: e.description
+            description: e.description,
+            userId: $scannedSyllabus.userId
           }
         })
       }
@@ -279,9 +284,14 @@
               </div>
             </div>
             <div class="field">
-              <label for="date-{event.eventID}">Date</label>
-              <input id="date-{event.eventID}" type="date" value={event.date}
-                oninput={(e) => updateEvent(event.eventID, 'date', e.target.value)} />
+              <label for="startdate-{event.eventID}">Start Date</label>
+              <input id="startdate-{event.eventID}" type="date" value={event.startDate}
+                oninput={(e) => updateEvent(event.eventID, 'startDate', e.target.value)} />
+            </div>
+            <div class="field">
+              <label for="enddate-{event.eventID}">End Date</label>
+              <input id="enddate-{event.eventID}" type="date" value={event.endDate}
+                oninput={(e) => updateEvent(event.eventID, 'endDate', e.target.value)} />
             </div>
             <div class="field">
               <label for="desc-{event.eventID}">Description</label>
@@ -306,10 +316,13 @@
                   <span class="field-value">{capitalize(event.type)}</span>
                 </div>
               </div>
-
               <div class="field">
-                <span class="field-label">Date</span>
-                <span class="field-value">{formatDate(event.date)}</span>
+                <span class="field-label">Start Date</span>
+                <span class="field-value">{formatDate(event.startDate)}</span>
+              </div>
+              <div class="field">
+                <span class="field-label">End Date</span>
+                <span class="field-value">{formatDate(event.endDate)}</span>
               </div>
 
               {#if event.description}

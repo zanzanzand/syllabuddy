@@ -53,6 +53,8 @@
             title: data.title,
             start: new Date(`${data.startdate}T00:00:00`),
             end: new Date(`${data.enddate ? data.enddate : data.startdate}T23:59:59`),
+            startDate: new Date(`${data.startdate}T00:00:00`),
+            endDate: new Date(`${data.enddate ? data.enddate : data.startdate}T23:59:59`),
             type: data.type,
             description: data.description,
             backgroundColor: getEventColor(data.type), // apply color on add
@@ -82,16 +84,37 @@
     };
 
     onMount(async () => {
-    const res = await fetch('http://localhost:3000/events', {
-        credentials: 'include'
-    });
-    if (res.ok) {
-        const saved = await res.json();
-        saved.forEach(event => ec.addEvent({
-            ...event,
-            start: new Date(event.startDate || event.start),
-            end: new Date(event.endDate || event.end || event.startDate || event.start)
-        }));
+    const [eventsRes, syllabiRes] = await Promise.all([
+        fetch ('http://localhost:3000/events', { credentials: 'include' }),
+        fetch ('http://localhost:3000/syllabi', { credentials: 'include' })
+    ])
+
+    if (eventsRes.ok) {
+        const saved = await eventsRes.json()
+        saved.forEach(function(event) {
+            ec.addEvent({
+                ...event,
+                start: new Date(event.startDate || event.start),
+                end: new Date(event.endDate || event.end || event.startDate || event.start),
+                backgroundColor: getEventColor(event.type)
+            })
+        })
+    }
+
+    if (syllabiRes.ok) {
+        const syllabi = await syllabiRes.json()
+        syllabi.forEach(function(syllabus) {
+            syllabus.events.forEach(function(event) {
+                if (!event.startDate) return
+                ec.addEvent({
+                    title: event.title,
+                    start: new Date(event.startDate),
+                    end: new Date(event.endDate || event.startDate),
+                    backgroundColor: getEventColor(event.type),
+                    editable: true
+                })
+            })
+        })
     }
     });
 </script>
