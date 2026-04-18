@@ -51,8 +51,8 @@
         submittedData = data;
         const newEvent = {
             title: data.title,
-            startDate: data.startdate,
-            endDate: data.enddate || null,
+            start: new Date(`${data.startdate}T00:00:00`),
+            end: new Date(`${data.enddate ? data.enddate : data.startdate}T23:59:59`),
             type: data.type,
             description: data.description,
             backgroundColor: getEventColor(data.type), // apply color on add
@@ -61,7 +61,7 @@
         status = 'Success!';
         e.currentTarget.reset();
         events_ = [...events_, newEvent]
-        ec.addEvent(newEvent)
+        // ec.addEvent(newEvent)
 
         const res = await fetch('http://localhost:3000/events', {
         method: 'POST',
@@ -87,7 +87,11 @@
     });
     if (res.ok) {
         const saved = await res.json();
-        saved.forEach(event => ec.addEvent(event));
+        saved.forEach(event => ec.addEvent({
+            ...event,
+            start: new Date(event.startDate || event.start),
+            end: new Date(event.endDate || event.end || event.startDate || event.start)
+        }));
     }
     });
 </script>
@@ -102,11 +106,12 @@
         <div class="bg-overlay" style="opacity: {1 - bgOpacity};"></div>
     {/if}
 
-<Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} />
+<!-- <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} /> -->
   
     <div id="addbtns">
-        <button class="add" onclick={() => $currPage = 'upload'}>Upload a File</button>
+        <button class="add" onclick={() => $currPage = 'upload'}>Upload Syllabus</button>
         <button class="add" onclick={() => (showModal = true)}>Add Event</button>
+        <button class="add" onclick={() => window.location.href = 'http://localhost:3000/export'}>Export</button>
     </div>
 
     <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} />
