@@ -168,6 +168,15 @@ app.get('/events', isAuthenticated, async (req, res) => {
     }
 })
 
+app.get('/syllabi', isAuthenticated, async (req, res) => {
+    try {
+        const syllabi = await Syllabus.find({ userId: req.user._id })
+        res.json(syllabi)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
 app.post('/syllabus/save', isAuthenticated, async (req, res) => {
     try {
         const payload = req.body
