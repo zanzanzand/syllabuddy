@@ -51,8 +51,8 @@
         submittedData = data;
         const newEvent = {
             title: data.title,
-            start: new Date(`${data.startdate}T00:00:00`),
-            end: new Date(`${data.enddate ? data.enddate : data.startdate}T23:59:59`),
+            startDate: new Date(`${data.startdate}T00:00:00`),
+            endDate: new Date(`${data.enddate ? data.enddate : data.startdate}T23:59:59`),
             type: data.type,
             description: data.description,
             backgroundColor: getEventColor(data.type), // apply color on add
