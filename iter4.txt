@@ -1,0 +1,265 @@
+*   d45fa50	TwilightDC02	Fri Apr 17 11:50:54 2026 +0800	Merge pull request #33 from zanzanzand/fix/delete-syllabus-auth
+|\  
+| * 0c5557f	Justin	Fri Apr 17 11:49:42 2026 +0800	Fixed lacking credentials and required authentication code to successfully delete / cancel upload of syllabus.
+|/  
+*   ff0d14e	TwilightDC02	Fri Apr 17 11:00:24 2026 +0800	Merge pull request #31 from zanzanzand/fix/login
+|\  
+| * 6ebe12b	Eisprinze	Fri Apr 17 10:56:36 2026 +0800	added log in button
+| * 4494601	Eisprinze	Fri Apr 17 01:25:19 2026 +0800	fixed issue where navbar and it's buttons render outside of logged in accounts
+* |   bf65c42	TwilightDC02	Fri Apr 17 10:44:59 2026 +0800	Merge pull request #32 from zanzanzand/feature/grade-parser
+|\ \  
+| |/  
+|/|   
+| * 263a804	Justin	Fri Apr 17 10:42:11 2026 +0800	Imported new gradeWeight function and updated the upload route to call both functions.
+| * 6da6fe4	Justin	Fri Apr 17 10:41:41 2026 +0800	Added alt tag for img element.
+| * a07a839	Justin	Fri Apr 17 10:41:02 2026 +0800	Created new prompt meant to just look for the grade weights, and its respective api call. This is done to avoid hallucinations and ensure focus isn't lost on the tasks at hand.
+| * ad40c0c	Justin	Fri Apr 17 10:39:48 2026 +0800	Added grading object to keep track of grade weights of the syllabus.
+| * c3267bc	Justin	Fri Apr 17 10:39:24 2026 +0800	Deleted unused code.
+|/  
+*   fad88ab	TwilightDC02	Thu Apr 16 16:41:47 2026 +0800	Merge pull request #30 from zanzanzand/fix/event-schema-nouser
+|\  
+| * 0b0f6b3	Justin	Thu Apr 16 14:05:16 2026 +0800	Updated form fields to match new Event schema.
+| * 7deef1c	Justin	Thu Apr 16 14:03:13 2026 +0800	Updated prompt to match new Event schema. Fixed prompt to better handle empty date scans.
+| * ca9f373	Justin	Thu Apr 16 14:02:39 2026 +0800	Updated fields to match the new event schema. Added userId to the events pages to ensure that only the events tied to user can be seen.
+| * f8e8219	Justin	Thu Apr 16 14:00:29 2026 +0800	Removed date and changed start and end to date types. Added required userId field to ensure events can only be seen by the correct user.
+| * c6772cd	Justin	Thu Apr 16 13:59:15 2026 +0800	Made userId required.
+|/  
+*   6420b2a	TwilightDC02	Thu Apr 16 12:40:55 2026 +0800	Merge pull request #29 from zanzanzand/feature/user-authenticated-syllabi
+|\  
+| *   99c6c09	TwilightDC02	Thu Apr 16 12:40:39 2026 +0800	Merge branch 'main' into feature/user-authenticated-syllabi
+| |\  
+| |/  
+|/|   
+* |   8e97cf3	TwilightDC02	Thu Apr 16 12:01:41 2026 +0800	Merge pull request #28 from zanzanzand/feature/export-ical-v2
+|\ \  
+| * | bfb7c0b	Eisprinze	Wed Apr 15 03:31:52 2026 +0800	export ical layout redesigend
+|/ /  
+| * 23281c7	Justin	Thu Apr 16 12:29:37 2026 +0800	Added credentials to payload to pass the required user authentication.
+| * eb197e9	Justin	Thu Apr 16 12:28:47 2026 +0800	Fixed typo: userID -> userId.
+| * 87411c2	Justin	Thu Apr 16 12:28:11 2026 +0800	Added missing closing bracket for landing class.
+| * c96ae97	Justin	Mon Apr 13 13:41:07 2026 +0800	Added authentication for syllabus routes, to ensure uploaded syllabi are tied to the respective user's account.
+|/  
+*   ae9a8d0	shamika	Fri Apr 10 15:13:12 2026 +0800	Merge pull request #27 from zanzanzand/debug/uifix
+|\  
+| * 15f0a06	shamika	Fri Apr 10 15:11:53 2026 +0800	added missing comma
+|/  
+*   226f4cb	shamika	Fri Apr 10 15:09:19 2026 +0800	Merge pull request #25 from zanzanzand/feature/calendar-update
+|\  
+| *   1fc8f9f	shamika	Fri Apr 10 15:07:00 2026 +0800	Merge branch 'main' into feature/calendar-update
+| |\  
+| |/  
+|/|   
+* |   35bdad1	shamika	Fri Apr 10 10:36:44 2026 +0800	Merge pull request #24 from zanzanzand/debug/usercustom
+|\ \  
+| * | 3788f76	shamika	Fri Apr 10 10:34:40 2026 +0800	fixed semantic issues
+|/ /  
+* |   e74e3cc	shamika	Fri Apr 10 09:44:40 2026 +0800	Merge pull request #23 from zanzanzand/feature/user-customization
+|\ \  
+| * \   63c59e8	shamika	Fri Apr 10 09:43:44 2026 +0800	Merge branch 'main' into feature/user-customization
+| |\ \  
+| |/ /  
+|/| |   
+* | |   83eaccb	TwilightDC02	Fri Apr 10 01:59:39 2026 +0800	Merge pull request #21 from zanzanzand/fix/app-css
+|\ \ \  
+| * | | dec59ea	zanzanzand	Fri Apr 10 01:33:33 2026 +0800	rearranged elements and fixed their functionality
+|/ / /  
+* | |   9703144	TwilightDC02	Fri Apr 10 01:19:26 2026 +0800	Merge pull request #20 from zanzanzand/feature/grade-calculator
+|\ \ \  
+| * \ \   a407ada	Zandalee Beck Labrador	Fri Apr 10 01:16:44 2026 +0800	Merge branch 'main' into feature/grade-calculator
+| |\ \ \  
+| |/ / /  
+|/| | |   
+* | | |   215bb13	Zandalee Beck Labrador	Fri Apr 10 01:08:27 2026 +0800	Merge pull request #19 from zanzanzand/test/save-and-delete-endpoints
+|\ \ \ \  
+| * | | | 6a337aa	Justin	Fri Apr 10 01:04:16 2026 +0800	Fixed syntax error.
+| * | | | 54daa3f	Justin	Fri Apr 10 01:04:03 2026 +0800	Fixed the script to not be global which prevents gemini test from running.
+| * | | | d162263	Justin	Fri Apr 10 00:44:13 2026 +0800	Created tests for the save and delete api calls.
+| * | | | 148d50e	Justin	Fri Apr 10 00:43:52 2026 +0800	Fixed formatting.
+| * | | | 406833e	Justin	Fri Apr 10 00:43:36 2026 +0800	Added another test case to see how well the llm can parse the dates.
+| * | | | 79131f7	Justin	Fri Apr 10 00:35:24 2026 +0800	Added a test case where gemini reads a pdf syllabus.
+| * | | | 993f9ff	Justin	Fri Apr 10 00:32:36 2026 +0800	Removed the gemini call here and added a jest mock to simulate the api call instead. Added another test to show that upload will fail if no file is attached and that error handling is set up.
+| * | | | 8cbd6c5	Justin	Fri Apr 10 00:31:37 2026 +0800	Modified jest script set up to have the gemini tests be separate from the rest of the test suites.
+|/ / / /  
+* | | |   b57c111	Zandalee Beck Labrador	Thu Apr 9 23:46:50 2026 +0800	Merge pull request #18 from zanzanzand/feature/save-events
+|\ \ \ \  
+| * \ \ \   8deb217	TwilightDC02	Thu Apr 9 23:42:42 2026 +0800	Merge branch 'main' into feature/save-events
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | |   a4fbcb2	TwilightDC02	Thu Apr 9 23:34:10 2026 +0800	Merge pull request #17 from zanzanzand/feature/profile-management
+|\ \ \ \ \  
+| * | | | | fe7070a	Eisprinze	Thu Apr 9 18:45:48 2026 +0800	Created Profile View and Change Profile Picture
+|/ / / / /  
+| * | | | 4149223	Justin	Thu Apr 9 23:30:44 2026 +0800	attemptSave now prevents saving when there are empty required fields.
+| * | | | a32c8b2	Justin	Mon Apr 6 20:51:08 2026 +0800	Added functions to save any edits made. Cancel Upload button now also deletes saved syllabus and redirects to calendar view.
+| * | | | 934bf8e	Justin	Mon Apr 6 20:48:48 2026 +0800	Replaced { new: true } with { returnDocument: 'after' } to deal with warning since new is deprecated.
+| * | | | ccc0690	Justin	Mon Apr 6 20:37:20 2026 +0800	Updated delete path to be more specific.
+| * | | | 499f7a5	Justin	Mon Apr 6 20:35:34 2026 +0800	Added route to delete a syllabus.
+| * | | | 883abc0	Justin	Mon Apr 6 19:45:42 2026 +0800	Changed syllabus id name.
+| * | | | c861acb	Justin	Mon Apr 6 19:23:41 2026 +0800	Added additional post route. This updates the chosen syllabus id to reflect the changes made by the user.
+|/ / / /  
+| * | | 2329b6f	zanzanzand	Fri Apr 10 01:02:04 2026 +0800	added navbar and integrated the calculator
+| * | | 4dd2f98	zanzanzand	Fri Apr 10 01:01:33 2026 +0800	interface of grade calculator
+| * | | 77c1c5f	zanzanzand	Fri Apr 10 00:58:28 2026 +0800	computation of grades
+|/ / /  
+| * | 869ecd8	dptkdl	Fri Apr 10 00:39:06 2026 +0800	Fixed Settings.svelte for Svelte 4 compatibility
+| * | 0747200	dptkdl	Thu Apr 9 23:12:06 2026 +0800	Fixed svelte syntax
+| * | 5a2bc5d	dptkdl	Thu Apr 9 23:04:36 2026 +0800	Package lock backend update
+| * | d83fc9e	dptkdl	Thu Apr 9 23:03:12 2026 +0800	Applied calendar theme, background image, and category colors
+| * | b734e6b	dptkdl	Thu Apr 9 23:01:24 2026 +0800	Added buttons for calendar settings
+| * | 2f7f3ee	dptkdl	Thu Apr 9 22:58:34 2026 +0800	fixed cors to allow credentials from frontend
+| * | 3ef2fd0	dptkdl	Thu Apr 9 22:30:34 2026 +0800	Updated App.svelte to add a settings page and navigation button
+| * | e738d3c	dptkdl	Thu Apr 9 22:29:56 2026 +0800	Added settings page with calendar theme customization and category color coding
+| * | 3f4ca90	dptkdl	Thu Apr 9 22:29:10 2026 +0800	Updated store to add calendar theme and color coding attrbiutes
+| * | 97938ef	dptkdl	Thu Apr 9 22:22:47 2026 +0800	Added routes for user preferences for calendar theme and category colors
+| * | c262bda	dptkdl	Thu Apr 9 22:21:01 2026 +0800	Added fields for theme and category colors
+|/ /  
+| * 444268b	shamika	Fri Apr 10 09:11:23 2026 +0800	fixed redirection to client
+| * 30d7197	shamika	Fri Apr 10 07:03:38 2026 +0800	Merge pull request #22 from zanzanzand/feature/dashboard
+|/| 
+| * 1fe9f26	shamika	Fri Apr 10 06:50:01 2026 +0800	created dashboard
+|/  
+*   2d52ca4	Zandalee Beck Labrador	Mon Apr 6 10:22:52 2026 +0800	Merge pull request #16 from zanzanzand/feature/editable-events
+|\  
+| * 021909a	Justin	Sun Apr 5 08:59:04 2026 +0800	Added  and  to enable event editing. Added extra classes for styling the editing fields.
+|/  
+*   f88cfc3	TwilightDC02	Sat Apr 4 19:54:06 2026 +0800	Merge pull request #15 from zanzanzand/feature/events-list-display
+|\  
+| * 22e1686	Justin	Sat Apr 4 19:08:03 2026 +0800	Added styling.
+| * 7d21ac1	Justin	Sat Apr 4 17:53:39 2026 +0800	Added function to format date output. Added class names to easily style later on. Refactored the code to display event details in an ordered manner.
+|/  
+*   d411f5b	TwilightDC02	Sat Apr 4 07:52:24 2026 +0800	Merge pull request #14 from zanzanzand/fix/schema-required-fields
+|\  
+| * 4ee8fad	Justin	Sat Apr 4 07:50:43 2026 +0800	Fixed typo from 'require' in the schema code to 'required'.
+|/  
+* c9254f9	dptkdl	Fri Mar 13 21:38:45 2026 +0800	add user management code to app.js
+*   5246658	Julie Ann Xyrene Lalimarmo	Fri Mar 13 21:12:40 2026 +0800	Merge pull request #13 from zanzanzand/feature/google-account
+|\  
+| *   54d739a	Julie Ann Xyrene Lalimarmo	Fri Mar 13 21:11:55 2026 +0800	Merge branch 'main' into feature/google-account
+| |\  
+| |/  
+|/|   
+* |   b4aae47	Eisprinze	Fri Mar 13 20:41:57 2026 +0800	Merge pull request #12 from zanzanzand/feature/export-ical
+|\ \  
+| * | 7b7a780	zanzanzand	Fri Mar 13 13:17:40 2026 +0800	fixed dependencies for functionality of downloading .ics
+| * |   8334321	zanzanzand	Fri Mar 13 10:17:01 2026 +0800	intergated export function in calendar view and adjusted styling
+| |\ \  
+| |/ /  
+|/| |   
+* | |   394f82c	Zandalee Beck Labrador	Fri Mar 13 09:43:46 2026 +0800	Merge pull request #11 from zanzanzand/feature/post-scan-page
+|\ \ \  
+| * | | 79d551f	Justin	Fri Mar 13 09:01:04 2026 +0800	Created PostUpload page that displays the parsed data.
+| * | | 2a056d3	Justin	Fri Mar 13 08:59:52 2026 +0800	Created new store variable to handle uploaded and parsed data.
+| * | | b391519	Justin	Fri Mar 13 08:59:23 2026 +0800	Updated variables to match the new store variable, allowing the page to transition to the post upload page.
+| * | | b2353bd	Justin	Fri Mar 13 08:58:39 2026 +0800	Added new conditional to handle postUpload page.
+| * | | c3b0f2c	Justin	Fri Mar 13 08:58:10 2026 +0800	Added missing closing bracket and parenthesis that was deleted during merge conflicts.
+* | | | f720286	TwilightDC02	Fri Mar 13 08:39:42 2026 +0800	Merge pull request #10 from zanzanzand/calendar
+|\| | | 
+| * | |   56ac8a3	TwilightDC02	Fri Mar 13 08:37:47 2026 +0800	Merge branch 'main' into calendar
+| |\ \ \  
+| |/ / /  
+|/| | |   
+* | | |   a96eda0	TwilightDC02	Thu Mar 12 23:43:53 2026 +0800	Merge pull request #9 from zanzanzand/test/backend-endpoints
+|\ \ \ \  
+| * | | | 6a6a0cd	Justin	Thu Mar 12 23:31:47 2026 +0800	Transferred test pdfs into testing folder.
+| * | | | e4d783e	Justin	Thu Mar 12 23:30:58 2026 +0800	Created unit tests for all current endpoints.
+| * | | | eea4d19	Justin	Thu Mar 12 23:30:21 2026 +0800	Fixed incorrect argument names and syntax error in upload variable.
+| * | | | b0f35c5	Justin	Thu Mar 12 23:28:40 2026 +0800	Reinstalled node modules to debug.
+|/ / / /  
+* | | |   dfd3567	TwilightDC02	Thu Mar 12 22:12:07 2026 +0800	Merge pull request #8 from zanzanzand/test/gemini-integration
+|\ \ \ \  
+| * | | | 9a8f29c	Justin	Thu Mar 12 21:57:01 2026 +0800	Created unit tests for the API calls, checking adherence to prompt and if arguments' are properly being processed.
+| * | | | 2e86da4	Justin	Thu Mar 12 21:25:01 2026 +0800	Separated the app code into this file.
+| * | | | 37d20fd	Justin	Thu Mar 12 21:24:49 2026 +0800	Removed all app code, to allow app to be exported for testing.
+| * | | | d126263	Justin	Thu Mar 12 21:24:06 2026 +0800	Installed new modules needed for creating tests.
+|/ / / /  
+* | | |   d404910	Zandalee Beck Labrador	Thu Mar 12 20:30:08 2026 +0800	Merge pull request #7 from zanzanzand/fix/packagejson-error
+|\ \ \ \  
+| * | | | 6b3d41b	Justin	Thu Mar 12 20:25:35 2026 +0800	Fixed missing comma and redundant mognoose lines.
+|/ / / /  
+* | | |   b1f1fca	TwilightDC02	Thu Mar 12 20:02:55 2026 +0800	Merge pull request #6 from zanzanzand/refactor/gemini-integration
+|\ \ \ \  
+| * \ \ \   7bdf3fa	TwilightDC02	Thu Mar 12 19:55:29 2026 +0800	Merge branch 'main' into refactor/gemini-integration
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | |   b285195	TwilightDC02	Thu Mar 12 15:02:33 2026 +0800	Merge pull request #4 from zanzanzand/feature/google-account
+|\ \ \ \ \  
+| | * | | | 0d9da0f	Justin	Thu Mar 12 19:43:49 2026 +0800	Fixed comment.
+| | * | | | 4c81bd9	Justin	Thu Mar 12 19:43:30 2026 +0800	Installed Multer to handle file uploads from the frontend.
+| | * | | | d6ef936	Justin	Thu Mar 12 16:21:39 2026 +0800	Refactored parseSyllabus function to accept 2 arguments: fileBuffer and mimeType to handle the uploads from the frontend calls.
+| |/ / / /  
+|/| | | |   
+| | * | |   198a109	shamika	Fri Mar 13 08:18:08 2026 +0800	Merge pull request #5 from zanzanzand/feature/file-upload-interface
+| | |\ \ \  
+| | | * \ \   535481f	shamika	Fri Mar 13 08:15:54 2026 +0800	Merge branch 'calendar' into feature/file-upload-interface
+| | | |\ \ \  
+| | | |/ / /  
+| | |/| | |   
+| | * | | | a535b42	shamika	Fri Mar 13 08:07:36 2026 +0800	fixed add to drag-edit functions
+| | | * | | 8ce8731	Justin	Thu Mar 12 16:13:47 2026 +0800	Added a button to change page to the file upload view.
+| | | * | | b6b9180	Justin	Thu Mar 12 16:13:21 2026 +0800	Added a button to change page to the calendar view.
+| | | * | | 08156dd	Justin	Thu Mar 12 16:12:46 2026 +0800	Updated logic for handling page changes with the currPage from store.js.
+| | | * | | ce0fa66	Justin	Thu Mar 12 16:12:03 2026 +0800	Created to handle page routing.
+| | | * | | 73a83b7	Justin	Thu Mar 12 15:36:04 2026 +0800	Fixed spacing.
+| | | * | | f5ced88	Justin	Thu Mar 12 15:31:06 2026 +0800	Installed multer to connect file upload from frontend.
+| | | * | | 4d8de52	Justin	Tue Mar 10 09:16:55 2026 +0800	Created page for the File Upload interface.
+| | |/ / /  
+| | | * | 5ebc47b	Eisprinze	Thu Mar 12 05:24:53 2026 +0800	Added UI button and import instructions
+| | | * |   a264ce3	Eisprinze	Thu Mar 12 04:16:06 2026 +0800	Merge remote-tracking branch 'origin/calendar' into feature/export-ical
+| | | |\ \  
+| | | |/ /  
+| | |/| |   
+| | * | | 9bae757	shamika	Tue Mar 10 07:57:31 2026 +0800	calendar from svelte component
+| |/ / /  
+|/| | |   
+| | * | f6db74a	Eisprinze	Thu Mar 12 04:01:57 2026 +0800	Cleanup and minor fixes
+| | * | 5a52f07	Eisprinze	Tue Mar 10 09:43:53 2026 +0800	Add export ical
+| |/ /  
+|/| |   
+| | * df8ee82	dptkdl	Fri Mar 13 15:27:16 2026 +0800	made userId optional in Syllabus schema
+| | * 7d98b65	dptkdl	Fri Mar 13 15:19:50 2026 +0800	add userId to Syllabus schema for data security
+| | * 19366b1	dptkdl	Fri Mar 13 15:17:02 2026 +0800	fixed connect-mongo import and User model path
+| | * 0276340	dptkdl	Thu Mar 12 22:42:08 2026 +0800	added delete account route
+| | * 60a24ce	dptkdl	Thu Mar 12 22:17:40 2026 +0800	added profile and profile picture routes
+| | * a2bd5ff	dptkdl	Thu Mar 12 21:15:17 2026 +0800	add session persistence, user model integration, and isAuthenticated middleware
+| | * db1fa1f	dptkdl	Thu Mar 12 20:03:44 2026 +0800	add User model for user management
+| |/  
+| * d189405	zanzanzand	Tue Mar 10 03:30:27 2026 +0800	initial setup of google login
+|/  
+*   2842ff9	Zandalee Beck Labrador	Fri Feb 27 15:37:05 2026 +0800	Merge pull request #3 from zanzanzand/feature/gemini-setup-and-integration
+|\  
+| * d38a952	Justin	Fri Feb 27 11:48:11 2026 +0800	Created helper to set the date data of an event to either be an actual date parsed or null.
+| * d9b99f9	Justin	Fri Feb 27 11:46:49 2026 +0800	Changed date to be an optiona field.
+| * 6037dbd	Justin	Fri Feb 27 11:46:21 2026 +0800	Added provision in the prompt to properly handle the inability to find a date for events.
+| * d627da4	Justin	Thu Feb 26 22:15:23 2026 +0800	Extra test case with different format to test parsing accuracy.
+| * fec0ce4	Justin	Wed Feb 25 10:46:06 2026 +0800	Imported parseSyllabus function to connect LLM output to server and database.
+| * f698a34	Justin	Wed Feb 25 10:35:58 2026 +0800	Changed file to getFile for status updates and exported function to be used by server.js.
+| * 39f61f7	Justin	Wed Feb 25 09:33:31 2026 +0800	Added documentation.
+| * 9732a41	Justin	Mon Feb 23 17:21:29 2026 +0800	Added file upload to be used by the model to generate content guided by the optimized prompt.
+| * 05e3677	Justin	Mon Feb 23 16:47:31 2026 +0800	Added prompt.
+| * 86455c5	Justin	Mon Feb 23 16:46:43 2026 +0800	Test syllabus file.
+| * 7eddc94	Justin	Mon Feb 23 16:02:50 2026 +0800	Connected gemini to node, printed sample generated content.
+| * a45db82	Justin	Mon Feb 23 16:01:49 2026 +0800	Installed module to handle gemini integration.
+|/  
+*   8c89e23	TwilightDC02	Mon Feb 23 15:22:09 2026 +0800	Merge pull request #2 from zanzanzand/feature/setup-database
+|\  
+| * 28c7fe1	Justin	Sat Feb 21 12:23:12 2026 +0800	Created async function to create sample data. Displayed in json format and is shown to be saved in the DB manager.
+| * 8e16bfd	Justin	Sat Feb 21 12:22:04 2026 +0800	Updated events to be an array since syllabi will have multiple events.
+| * 0dc3a43	Justin	Sat Feb 21 12:21:28 2026 +0800	Fixed syntax error to properly export schema. Will no longer export Model because it is unnecessary.
+| * 66bb292	Justin	Sat Feb 21 10:11:35 2026 +0800	Modified export code to use CommonJS.
+| * c7cb885	Justin	Sat Feb 21 09:49:38 2026 +0800	Imported event schema.
+| * ae678d1	Justin	Sat Feb 21 09:48:21 2026 +0800	Created Event model.
+| * 44133f4	Justin	Sat Feb 21 09:41:43 2026 +0800	Commented out gradeSchema since it is for the latter iters.
+| * 84b5487	Justin	Sat Feb 21 09:41:21 2026 +0800	Created Syllabus model.
+| * 8c6079a	Justin	Sat Feb 21 09:25:02 2026 +0800	Added dotenv to add security for handling database connection uri.
+| * 9c68b15	Justin	Sat Feb 21 08:40:19 2026 +0800	Added code to use cors module.
+| * aed2770	Justin	Sat Feb 21 08:39:33 2026 +0800	Installed cors module to allow frontend - backend - api communication later on.
+|/  
+*   126777c	TwilightDC02	Fri Feb 20 07:41:01 2026 +0800	Merge pull request #1 from zanzanzand/feature/setup-server
+|\  
+| * d917db1	Justin	Tue Feb 17 10:43:13 2026 +0800	Created simple functioning server that runs on PORT 3000.
+| * 88a7ba0	Justin	Tue Feb 17 09:54:38 2026 +0800	Installed necessary modules for set up.
+| * bcc1cb6	Justin	Tue Feb 17 09:54:05 2026 +0800	Created git ignore.
+|/  
+* f94a7fe	Zandalee Beck Labrador	Fri Jan 30 10:16:04 2026 +0800	Initial commit
