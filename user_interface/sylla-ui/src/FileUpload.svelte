@@ -6,11 +6,11 @@
   let status = $state("");
   let dragOver = $state(false);
 
-  const ALLOWED_TYPES = ["application/pdf", "image/png"];
+  const ALLOWED_TYPES = "application/pdf";
   const MAX_SIZE_MB = 10;
 
   function validateFile(f) {
-    if (!ALLOWED_TYPES.includes(f.type)) return "Only PDF and PNG files are supported.";
+    if (!ALLOWED_TYPES.includes(f.type)) return "Only PDF files are supported.";
     if (f.size > MAX_SIZE_MB * 1024 * 1024) return `File must be under ${MAX_SIZE_MB}MB.`;
     return null;
   }
@@ -81,7 +81,7 @@
 <div class="upload-container">
   <header class="upload-header">
     <h2>Upload Syllabus</h2>
-    <p class="upload-subtitle">Upload a PDF or PNG of your syllabus to extract events automatically.</p>
+    <p class="upload-subtitle">Upload a PDF of your syllabus to extract events automatically.</p>
   </header>
 
   <div
@@ -107,9 +107,9 @@
           <p class="drop-text">Drag and drop your syllabus here, or</p>
           <label class="btn-browse">
             Browse Files
-            <input type="file" accept=".pdf,.png" onchange={handleFileSelect} hidden />
+            <input type="file" accept=".pdf" onchange={handleFileSelect} hidden />
           </label>
-          <p class="drop-hint">PDF or PNG · Max 10MB</p>
+          <p class="drop-hint">PDF · Max 10MB</p>
         </div>
       {:else}
         <div class="file-ready">
