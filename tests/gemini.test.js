@@ -14,6 +14,30 @@ describe("Syllabuddy Gemini Tests", () => {
         await sleep();
     })
 
+    // Gemini Connection
+
+    test('Connect to Gemini and return valid JSON', async () => {
+        const sampleText = `
+        Course title: Intro to Testing
+        Code: TEST123
+        My name is Bon, the one who is in charge of this course and I am honored to meet you.
+        This is for the 1st semester
+        RandomTestNumero1
+        This is a random exam meant to test your abilities in parsing
+        It will consist of 2000067 tests to train your brain!
+        randomtestnumero1 will be done on mar 13 2026
+        `
+        const dummyBuffer = Buffer.from(sampleText, 'utf-8')
+        const response = await parseSyllabus(dummyBuffer, 'text/plain')
+
+        expect(response).toHaveProperty('course_title')
+        expect(response).toHaveProperty('course_code')
+        expect(response).toHaveProperty('instructor')
+        expect(response).toHaveProperty('semester')
+        expect(Array.isArray(response.events)).toBe(true)
+        expect(response.events[0].startDate).toBe('2026-03-13')
+    })
+
     // Input Validation
 
     test("Return error since first arg is not a buffer", async() => {
@@ -57,7 +81,7 @@ describe("Syllabuddy Gemini Tests", () => {
 
     // Multiple Event Extraction
 
-    test("This should parse multiple events with correct dates", async () => {
+    test("Should parse multiple events with correct dates", async () => {
         const sampleText = `
             Course: Advanced Testing TEST456
             Professor: Bon
@@ -75,7 +99,7 @@ describe("Syllabuddy Gemini Tests", () => {
 
     // Real File Parsing
 
-    test("This should parse a real PDF file", async () => {
+    test("Should parse a real PDF file (PHILO 13)", async () => {
         const buffer = fs.readFileSync(path.join(__dirname, 'test_file.pdf'))
         const response = await parseSyllabus(buffer, "application/pdf")
         const grades = await parseGradeWeights(buffer, "application/pdf")
@@ -93,8 +117,63 @@ describe("Syllabuddy Gemini Tests", () => {
         expect(grades).toHaveProperty("grading")
         expect(grades.grading.assignment).toBe(60)
         expect(grades.grading.project).toBe(40)
-        expect(grades.grading.exam).toBeNull()
-        expect(grades.grading.quiz).toBeNull()
+        const total = Object.values(grades.grading).reduce(function(sum, val) {
+            return sum + (val || 0)
+        }, 0)
+        expect(total).toBe(100)
+    })
+
+    test("Should parse a real PDF file (NSTP12)", async () => {
+        const buffer = fs.readFileSync(path.join(__dirname, 'test_file2.pdf'))
+        const response = await parseSyllabus(buffer, "application/pdf")
+        const grades = await parseGradeWeights(buffer, "application/pdf")
+
+        expect(response).toHaveProperty("course_title")
+        expect(response).toHaveProperty("course_code")
+        expect(response).toHaveProperty("instructor")
+        expect(response).toHaveProperty("semester")
+
+        expect(response.course_title).toBe("Civic Welfare Training Service")
+        expect(response.instructor).toBe("Reginales, Jonathan")
+
+        expect(Array.isArray(response.events)).toBe(true)
+        expect(response.events.some(e => e.startDate === "2026-01-14" )).toBe(true)
+        expect(response.events.some(e => e.startDate === "2026-02-11" )).toBe(true)
+        expect(response.events.some(e => e.startDate === "2026-04-08" )).toBe(true)
+
+        expect(grades).toHaveProperty("grading")
+        const total = Object.values(grades.grading).reduce(function(sum, val) {
+            return sum + (val || 0)
+        }, 0)
+        expect(total).toBe(100)
+    })
+
+    test("Should parse a real PDF file (SOCSC13)", async () => {
+        const buffer = fs.readFileSync(path.join(__dirname, 'test_file3.pdf'))
+        const response = await parseSyllabus(buffer, "application/pdf")
+        const grades = await parseGradeWeights(buffer, "application/pdf")
+
+        expect(response).toHaveProperty("course_title")
+        expect(response).toHaveProperty("course_code")
+        expect(response).toHaveProperty("instructor")
+        expect(response).toHaveProperty("semester")
+
+        expect(response.course_code).toBe("SOCSC 13")
+        expect(response.instructor).toBe("Asst. Prof. Genesis Kelly S. Lontoc")
+
+        expect(Array.isArray(response.events)).toBe(true)
+        expect(response.events.some(e => e.startDate === "2026-03-14" )).toBe(true)
+        expect(response.events.some(e => e.startDate === "2026-03-19" )).toBe(true)
+        expect(response.events.some(e => e.startDate === "2026-04-23" )).toBe(true)
+        expect(response.events.some(e => e.startDate === "2026-04-30" )).toBe(true)
+        expect(response.events.some(e => e.type === "exam" )).toBe(true)
+
+        expect(grades).toHaveProperty("grading")
+        expect(grades.grading.exam).toBe(35)
+        const total = Object.values(grades.grading).reduce(function(sum, val) {
+            return sum + (val || 0)
+        }, 0)
+        expect(total).toBe(100)
     })
 
     // Type Categorization 
