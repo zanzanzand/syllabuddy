@@ -1,5 +1,6 @@
 <script>
   import { computeFinalGrade } from "./grade.js";
+  import { scannedSyllabus } from './store.js'
 
   let categories = [];
 
@@ -28,6 +29,26 @@
     categories[i].items.splice(j, 1);
     categories = categories;
   }
+
+async function handleUpload(file) {
+  const base64 = await fileToBase64(file);
+
+  const res = await fetch('http://localhost:3000/parse-grades', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      fileBuffer: base64.split(',')[1],
+      mimeType: file.type
+    })
+  });
+
+  const data = await res.json();
+
+  $scannedSyllabus = {
+    ...$scannedSyllabus,
+    grading: data.grading
+  };
+}
 
   $: finalGrade = computeFinalGrade(categories);
 </script>

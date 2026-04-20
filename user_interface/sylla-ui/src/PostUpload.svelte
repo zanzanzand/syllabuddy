@@ -363,6 +363,9 @@
     {#if !saved}
       <button class="btn-primary" onclick={attemptSave} disabled={events.length==0}>Save Events</button>
       <button class="btn-secondary" onclick={cancelUpload}>Cancel Upload</button>
+      <button class="btn-primary" onclick={() => $currPage = 'calculator'}>
+        Go to Calculator
+      </button>
     {/if}
   </footer>
 </div>

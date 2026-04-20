@@ -464,4 +464,20 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: err.message })
 })
 
+// auto-input parsed grade weights into the calculator
+app.post('/parse-grades', async (req, res) => {
+  try {
+    const { fileBuffer, mimeType } = req.body;
+
+    const result = await parseGradeWeights(
+      Buffer.from(fileBuffer, 'base64'),
+      mimeType
+    );
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Parsing failed' });
+  }
+});
+
 module.exports = app
