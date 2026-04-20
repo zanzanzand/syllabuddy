@@ -2,7 +2,22 @@
   import { computeFinalGrade } from "./grade.js";
   import { scannedSyllabus } from './store.js'
 
-  let categories = [];
+  let categories = $state([]);
+  let initialized = false;
+
+  // Sync from store on navigation
+  $effect(() => {
+    if ($scannedSyllabus?.grading && !initialized) {
+      categories = Object.entries($scannedSyllabus.grading)
+        .filter(([_, weight]) => weight !== null)
+        .map(([name, weight]) => ({
+          name: name.charAt(0).toUpperCase() + name.slice(1),
+          weight: weight,
+          items: []
+        }));
+      initialized = true;
+    }
+  });
 
   function addCategory() {
     categories = [
@@ -30,27 +45,49 @@
     categories = categories;
   }
 
-async function handleUpload(file) {
-  const base64 = await fileToBase64(file);
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }
 
-  const res = await fetch('http://localhost:3000/parse-grades', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      fileBuffer: base64.split(',')[1],
-      mimeType: file.type
-    })
-  });
+  async function handleUpload(file) {
+    const base64 = await fileToBase64(file);
 
-  const data = await res.json();
+    const res = await fetch('http://localhost:3000/parse-grades', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileBuffer: base64.split(',')[1],
+        mimeType: file.type
+      })
+    });
 
-  $scannedSyllabus = {
-    ...$scannedSyllabus,
-    grading: data.grading
-  };
-}
+    const data = await res.json();
 
-  $: finalGrade = computeFinalGrade(categories);
+    $scannedSyllabus = {
+      ...$scannedSyllabus,
+      grading: data.grading
+    };
+
+    // Map parsed grading into the calculator
+    if (data.grading) {
+      categories = data.grading.map(cat => ({
+        name: cat.name ?? "",
+        weight: cat.weight ?? "",
+        items: (cat.items ?? []).map(item => ({
+          name: item.name ?? "",
+          score: item.score ?? "",
+          total: item.total ?? ""
+        }))
+      }));
+    }
+  }
+
+  let finalGrade = $derived(computeFinalGrade(categories));
 </script>
 
 <div class="max-w-4xl mx-auto mt-6 space-y-6">
@@ -59,7 +96,7 @@ async function handleUpload(file) {
     <h1 class="text-2xl font-bold">Grade Calculator</h1>
     <button
       class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      on:click={addCategory}>
+      onclick={addCategory}>
       + Add Category
     </button>
   </div>
@@ -84,7 +121,7 @@ async function handleUpload(file) {
 
         <button
           class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
-          on:click={() => removeCategory(i)}>
+          onclick={() => removeCategory(i)}>
           Delete
         </button>
       </div>
@@ -124,7 +161,7 @@ async function handleUpload(file) {
             <!-- Remove button -->
             <button
             class="bg-red-400 text-white px-3 py-2 rounded hover:bg-red-500 col-span-2"
-            on:click={() => removeItem(i, j)}>
+            onclick={() => removeItem(i, j)}>
             Remove
             </button>
 
@@ -133,7 +170,7 @@ async function handleUpload(file) {
 
         <button
           class="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600"
-          on:click={() => addItem(i)}>
+          onclick={() => addItem(i)}>
           + Add Item
         </button>
 
