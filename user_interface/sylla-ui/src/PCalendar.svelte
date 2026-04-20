@@ -2,6 +2,7 @@
     import {Calendar, DayGrid, Interaction, List, TimeGrid} from '@event-calendar/core';
     import {currPage, calendarTheme, calendarBackground, backgroundOpacity, categoryColors} from './store.js';
     import Modal from './AddEventModal.svelte';
+    import EditEventModal from './EditEventModal.svelte';
     import { onMount } from 'svelte';
     let showModal = $state(false);
     
@@ -14,6 +15,9 @@
     let bgImage = $state('');
     let bgOpacity = $state(1);
     let catColors = $state({});
+
+    let selectedEvent = $state(null);
+    let showEditModal = $state(false);
 
     calendarTheme.subscribe(v => theme = v);
     calendarBackground.subscribe(v => bgImage = v);
@@ -36,6 +40,10 @@
             end: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
         },
         selectable: true,
+        eventClick: (info) => {
+            selectedEvent = info.event;
+            showEditModal = true;
+        }
     };
 
 
@@ -83,6 +91,48 @@
 
     };
 
+    async function handleEdit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const data = Object.fromEntries(formData.entries());
+
+        const updatedEvent = {
+            title: data.title,
+            startDate: data.startdate,
+            endDate: data.enddate || null,
+            type: data.type,
+            description: data.description,
+            backgroundColor: getEventColor(data.type)
+        };
+
+        const res = await fetch(`http://localhost:3000/events/${selectedEvent.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(updatedEvent)
+        });
+
+        if (res.ok) {
+            selectedEvent.setProp('title', updatedEvent.title);
+            selectedEvent.setStart(new Date(`${data.startdate}T00:00:00`));
+            selectedEvent.setEnd(new Date(`${data.enddate || data.startdate}T23:59:59`));
+            selectedEvent.setProp('backgroundColor', updatedEvent.backgroundColor);
+            showEditModal = false;
+        }
+    }
+
+    async function handleDelete() {
+        const res = await fetch(`http://localhost:3000/events/${selectedEvent.id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+
+        if (res.ok) {
+            selectedEvent.remove();
+            showEditModal = false;
+        }
+    }
+
     onMount(async () => {
     const [eventsRes, syllabiRes] = await Promise.all([
         fetch ('http://localhost:3000/events', { credentials: 'include' }),
@@ -94,9 +144,17 @@
         saved.forEach(function(event) {
             ec.addEvent({
                 ...event,
+                id: event._id,
+                title: event.title,
                 start: new Date(event.startDate || event.start),
                 end: new Date(event.endDate || event.end || event.startDate || event.start),
-                backgroundColor: getEventColor(event.type)
+                backgroundColor: getEventColor(event.type),
+                extendedProps: {
+                    description: event.description,
+                    type: event.type
+                },
+                editable: true,
+                allDay: true
             })
         })
     }
@@ -117,6 +175,7 @@
         })
     }
     });
+
 </script>
 
 <div
@@ -183,6 +242,58 @@
             <button id="final" type="submit">Add to Calendar</button>
         </form>
     </Modal>
+
+    <Modal bind:showModal={showEditModal}>
+    {#snippet header()}
+        <h2>Edit Event</h2>
+    {/snippet}
+
+    {#if selectedEvent}
+        <form id="edit-event-form" onsubmit={handleEdit}>
+            <div class="form-group">
+                <label for="edit-title">Event Title</label>
+                <input type="text" id="edit-title" name="title" value={selectedEvent.title} required>
+            </div>
+
+            <div class="form-group">
+                <label for="edit-category">Category</label>
+                <select id="edit-category" name="type">
+                    <option value="exam">Exam</option>
+                    <option value="assignment">Assignment</option>
+                    <option value="project">Project</option>
+                    <option value="quiz">Quiz</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="edit-start">Start Date</label>
+                    <input type="date" id="edit-start" name="startdate"
+                        value={selectedEvent.start?.toISOString().slice(0,10)} required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-end">End Date</label>
+                    <input type="date" id="edit-end" name="enddate"
+                        value={selectedEvent.end?.toISOString().slice(0,10)}>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="edit-desc">Description</label>
+                <textarea id="edit-desc" name="description" rows="2">{selectedEvent.extendedProps?.description ?? ''}</textarea>
+            </div>
+
+            <div style="display:flex; gap:8px;">
+                <button id="final" type="submit">Save Changes</button>
+                <button id="final" type="button" onclick={handleDelete}
+                    style="background:#fee2e2; border-color:#fca5a5;">
+                    Delete
+                </button>
+            </div>
+        </form>
+    {/if}
+</Modal>
 </div>
 
 <style>

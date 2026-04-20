@@ -42,8 +42,7 @@
 		background: rgba(0, 0, 0, 0.3);
 	}
 	dialog > div {
-    padding: 1.5em;
-    position: relative;
+		padding: 1em;
 	}
 	dialog[open] {
 		animation: zoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -68,26 +67,15 @@
 		}
 	}
 	button {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f5f5f5;
-    border: 1px solid #e0e0e0;
-    border-radius: 50%;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #666;
-    cursor: pointer;
-    padding: 0;
-	}
+		display: block;
+        float: right;
+        padding: 4px;
+        background: none;
+        border-radius: 30%;
 
-	button:hover {
-		background: #ebebeb;
-		color: #333;
 	}
+    button:hover{
+        border-color: oklch(87% 0 0);
+        background-color: oklch(92.2% 0 0);
+    }
 </style>

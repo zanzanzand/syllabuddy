@@ -440,4 +440,22 @@ app.put('/preferences/colors/reset', isAuthenticated, async (req, res) => {
     }
 })
 
+app.put('/events/:id', async (req, res) => {
+    try {
+        const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(event);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+})
+
+app.delete('/events/:id', async (req, res) => {
+    try {
+        await Event.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Event deleted.' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+})
+
 module.exports = app
