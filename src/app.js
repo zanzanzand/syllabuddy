@@ -87,11 +87,11 @@ const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
-        const allowed = ['application/pdf', 'image/png']
+        const allowed = ['application/pdf']
         if (allowed.includes(file.mimetype)){
             cb(null, true)
         } else{
-            cb(new Error('Invalid file type. Only PDF and PNG allowed.'))
+            cb(new Error('Invalid file type. Only PDF allowed.'))
         }
     }
 })
@@ -458,7 +458,7 @@ app.use((err, req, res, next) => {
     if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({ error: 'File too large. Max 10MB.' })
     }
-    if (err.message === 'Invalid file type. Only PDF and PNG allowed.') {
+    if (err.message === 'Invalid file type. Only PDF allowed.') {
         return res.status(400).json({ error: err.message })
     }
     res.status(500).json({ error: err.message })
