@@ -113,20 +113,9 @@
         });
 
         if (res.ok) {
-            selectedEvent.remove();
-            ec.addEvent({
-            id: selectedEvent.id,
-            title: updatedEvent.title,
-            start: new Date(`${data.startdate}T00:00:00`),
-            end: new Date(`${data.enddate || data.startdate}T00:00:00`),
-            backgroundColor: updatedEvent.backgroundColor,
-            extendedProps: {
-                description: updatedEvent.description,
-                type: updatedEvent.type
-            },
-            editable: true
-        });
-            showEditModal = false;
+           await reloadCalendarEvents();
+           showEditModal = false;
+           selectedEvent = null;
         }
     }
 
@@ -137,8 +126,34 @@
         });
 
         if (res.ok) {
-            selectedEvent.remove();
+            await reloadCalendarEvents();
             showEditModal = false;
+            selectedEvent = null;
+        }
+    }
+
+    async function reloadCalendarEvents() {
+        const res = await fetch('http://localhost:3000/events', {
+            credentials: 'include'
+        });
+        if (res.ok) {
+            const saved = await res.json();
+            const formattedEvents = saved.map(event => ({
+                id: event._id,
+                title: event.title,
+                start: new Date(event.startDate),
+                end: new Date(event.endDate || event.startDate),
+                backgroundColor: getEventColor(event.type),
+                extendedProps: {
+                    description: event.description,
+                    type: event.type
+                },
+                editable: true,
+                allDay: true
+            }));
+            console.log('formattedEvents:', formattedEvents);
+            ec.setOption('events', formattedEvents);
+            console.log('setOption called');
         }
     }
 
