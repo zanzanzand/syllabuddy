@@ -60,9 +60,9 @@
         const newEvent = {
             title: data.title,
             start: new Date(`${data.startdate}T00:00:00`),
-            end: new Date(`${data.enddate ? data.enddate : data.startdate}T23:59:59`),
+            end: new Date(`${data.enddate ? data.enddate : data.startdate}T00:00:00`),
             startDate: new Date(`${data.startdate}T00:00:00`),
-            endDate: new Date(`${data.enddate ? data.enddate : data.startdate}T23:59:59`),
+            endDate: new Date(`${data.enddate ? data.enddate : data.startdate}T00:00:00`),
             type: data.type,
             description: data.description,
             backgroundColor: getEventColor(data.type), // apply color on add
@@ -113,10 +113,19 @@
         });
 
         if (res.ok) {
-            selectedEvent.setProp('title', updatedEvent.title);
-            selectedEvent.setStart(new Date(`${data.startdate}T00:00:00`));
-            selectedEvent.setEnd(new Date(`${data.enddate || data.startdate}T23:59:59`));
-            selectedEvent.setProp('backgroundColor', updatedEvent.backgroundColor);
+            selectedEvent.remove();
+            ec.addEvent({
+            id: selectedEvent.id,
+            title: updatedEvent.title,
+            start: new Date(`${data.startdate}T00:00:00`),
+            end: new Date(`${data.enddate || data.startdate}T00:00:00`),
+            backgroundColor: updatedEvent.backgroundColor,
+            extendedProps: {
+                description: updatedEvent.description,
+                type: updatedEvent.type
+            },
+            editable: true
+        });
             showEditModal = false;
         }
     }
@@ -175,6 +184,25 @@
         })
     }
     });
+
+    function toLocalDateString(date) {
+        if (!date) return '';
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function toLocalEndDateString(date) {
+        if (!date) return '';
+        const d = new Date(date);
+        d.setDate(d.getDate() - 1);  // subtract one day to correct the offset
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
 
 </script>
 
@@ -257,7 +285,7 @@
 
             <div class="form-group">
                 <label for="edit-category">Category</label>
-                <select id="edit-category" name="type">
+                <select id="edit-category" name="type" value={selectedEvent.extendedProps?.type ?? 'other'}>
                     <option value="exam">Exam</option>
                     <option value="assignment">Assignment</option>
                     <option value="project">Project</option>
@@ -270,12 +298,12 @@
                 <div class="form-group">
                     <label for="edit-start">Start Date</label>
                     <input type="date" id="edit-start" name="startdate"
-                        value={selectedEvent.start?.toISOString().slice(0,10)} required>
+                        value={toLocalDateString(selectedEvent.start)} required>
                 </div>
                 <div class="form-group">
                     <label for="edit-end">End Date</label>
                     <input type="date" id="edit-end" name="enddate"
-                        value={selectedEvent.end?.toISOString().slice(0,10)}>
+                        value={toLocalEndDateString(selectedEvent.end)}>
                 </div>
             </div>
 
