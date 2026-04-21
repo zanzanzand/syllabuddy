@@ -98,7 +98,7 @@
       {#if !file}
         <div class="drop-idle">
           <div class="drop-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8fae72" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="17 8 12 3 7 8"/>
               <line x1="12" y1="3" x2="12" y2="15"/>
@@ -113,15 +113,15 @@
         </div>
       {:else}
         <div class="file-ready">
-          <div class="drop-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <div class="drop-icon success-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3d6b1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
           <p class="file-name">{file.name}</p>
           <p class="file-size">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
           <div class="file-actions">
-            <button class="btn-primary" onclick={handleUpload}>Upload</button>
+            <button class="btn-primary" onclick={handleUpload}>Upload & Scan</button>
             <button class="btn-secondary" onclick={handleReset}>Cancel</button>
           </div>
         </div>
@@ -148,10 +148,13 @@
 </div>
 
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:wght@600&display=swap');
+
   .upload-container {
     max-width: 600px;
     margin: 1.5rem auto;
     padding: 0 1rem;
+    font-family: 'DM Sans', sans-serif;
   }
 
   .upload-header {
@@ -162,18 +165,21 @@
 
   .upload-header h2 {
     margin: 0 0 0.25rem;
+    font-family: 'Fraunces', serif;
     font-size: 1.4rem;
+    font-weight: 600;
+    color: #1a1a1a;
   }
 
   .upload-subtitle {
-    color: #64748b;
+    color: #777;
     font-size: 0.9rem;
     margin: 0;
   }
 
   .drop-zone {
-    border: 2px dashed #e2e8f0;
-    border-radius: 10px;
+    border: 2px dashed #d8d4cd;
+    border-radius: 14px;
     padding: 3rem 2rem;
     text-align: center;
     background: #fff;
@@ -181,29 +187,39 @@
   }
 
   .drop-zone.drag-over {
-    border-color: #4f46e5;
-    background: #eef2ff;
+    border-color: #8fae72;
+    background: #f4f9ee;
   }
 
   .drop-zone.has-file {
-    border-color: #4f46e5;
+    border-color: #8fae72;
     border-style: solid;
+    background: #f9fcf6;
   }
 
   .drop-icon {
     margin-bottom: 0.75rem;
     display: flex;
     justify-content: center;
-}
+  }
+
+  .success-icon {
+    background: #eef4e8;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    align-items: center;
+    margin: 0 auto 0.75rem;
+  }
 
   .drop-text {
-    color: #475569;
+    color: #555;
     margin: 0 0 0.75rem;
     font-size: 0.95rem;
   }
 
   .drop-hint {
-    color: #94a3b8;
+    color: #aaa9a4;
     font-size: 0.8rem;
     margin: 0.5rem 0 0;
   }
@@ -211,17 +227,20 @@
   .btn-browse {
     display: inline-block;
     padding: 0.5rem 1.25rem;
-    background: #eef2ff;
-    color: #4f46e5;
-    border: 1px solid #c7d2fe;
+    background: #eef4e8;
+    color: #2d5016;
+    border: 1px solid #c5d9ad;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
     font-size: 0.9rem;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.15s, border-color 0.15s;
   }
 
   .btn-browse:hover {
-    background: #e0e7ff;
+    background: #e2eed8;
+    border-color: #adc994;
   }
 
   .file-ready {
@@ -233,13 +252,13 @@
 
   .file-name {
     font-weight: 600;
-    color: #1e293b;
+    color: #1a1a1a;
     margin: 0;
     font-size: 0.95rem;
   }
 
   .file-size {
-    color: #94a3b8;
+    color: #aaa9a4;
     font-size: 0.8rem;
     margin: 0 0 0.75rem;
   }
@@ -251,28 +270,36 @@
 
   .btn-primary {
     padding: 0.55rem 1.5rem;
-    background: #4f46e5;
+    background: #3d6b1a;
     color: #fff;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    transition: background 0.15s, transform 0.1s;
   }
 
   .btn-primary:hover {
-    background: #4338ca;
+    background: #2d5016;
   }
 
   .btn-secondary {
     padding: 0.55rem 1.5rem;
     background: #fff;
-    border: 1px solid #cbd5e1;
+    border: 1px solid #e0ddd7;
     border-radius: 6px;
     cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: #555;
+    transition: background 0.15s, border-color 0.15s;
   }
 
   .btn-secondary:hover {
-    background: #f8fafc;
+    background: #f7f6f3;
+    border-color: #ccc9c2;
   }
 
   .status-block {
@@ -286,7 +313,7 @@
     width: 36px;
     height: 36px;
     border: 3px solid #e2e8f0;
-    border-top-color: #4f46e5;
+    border-top-color: #3d6b1a;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
@@ -296,7 +323,7 @@
   }
 
   .status-text {
-    color: #475569;
+    color: #555;
     font-size: 0.95rem;
     margin: 0;
   }

@@ -1,7 +1,7 @@
 <script>
-  import { currPage, scannedSyllabus } from './store.js'
+  import { currPage, scannedSyllabus, categoryColors } from './store.js'
  
-  const EVENT_TYPES = ['exam', 'assignment', 'project', 'consultation', 'lecture', 'other']
+  const EVENT_TYPES = ['exam', 'assignment', 'quiz', 'project', 'consultation', 'lecture', 'other']
 
   let events = $state([])
   let saved = $state(false)
@@ -218,6 +218,11 @@
     }
   }
 
+  function typeBadgeStyle(type) {
+    const color = $categoryColors[type] || '#e0ddd7'
+    return `background:${color};border:1px solid ${color};`
+  }
+
 </script>
  
 {#if $scannedSyllabus}
@@ -227,16 +232,16 @@
     <div>
       <h2>{$scannedSyllabus.title || 'Untitled Course'}</h2>
       <p class="sylla-meta">
-        <span>{$scannedSyllabus.code}</span>
-        <span>· {$scannedSyllabus.instructor}</span>
-        {#if $scannedSyllabus.semester}<span>· {$scannedSyllabus.semester}</span>{/if}
+        <span class="meta-chip">{$scannedSyllabus.code}</span>
+        <span class="meta-chip">{$scannedSyllabus.instructor}</span>
+        {#if $scannedSyllabus.semester}<span class="meta-chip"> {$scannedSyllabus.semester}</span>{/if}
       </p>
     </div>
   </header>
  
   <section class="events-section">
     <div class="section-header">
-      <h3>Events ({events.length})</h3>
+      <h3>Events <span class="event-count">{events.length}</span></h3>
       <button class="btn-add" onclick={addEvent}>+ Add Event</button>
     </div>
  
@@ -249,6 +254,9 @@
         <div class="event-card" class:is-new={event.isNew}>
           <div class="event-card-header">
             <span class="event-number">#{i + 1}</span>
+            {#if !event.editing && event.type}
+              <span class="event-type-badge" style={typeBadgeStyle(event.type)}>{capitalize(event.type)}</span>
+            {/if}
             {#if event.isNew}
               <span class="event-type-badge event-new-badge">New</span>
             {/if}
@@ -283,15 +291,17 @@
                 </select>
               </div>
             </div>
-            <div class="field">
-              <label for="startdate-{event.eventID}">Start Date</label>
-              <input id="startdate-{event.eventID}" type="date" value={event.startDate}
-                oninput={(e) => updateEvent(event.eventID, 'startDate', e.target.value)} />
-            </div>
-            <div class="field">
-              <label for="enddate-{event.eventID}">End Date</label>
-              <input id="enddate-{event.eventID}" type="date" value={event.endDate}
-                oninput={(e) => updateEvent(event.eventID, 'endDate', e.target.value)} />
+            <div class="field-row">
+              <div class="field">
+                <label for="startdate-{event.eventID}">Start Date</label>
+                <input id="startdate-{event.eventID}" type="date" value={event.startDate}
+                  oninput={(e) => updateEvent(event.eventID, 'startDate', e.target.value)} />
+              </div>
+              <div class="field">
+                <label for="enddate-{event.eventID}">End Date</label>
+                <input id="enddate-{event.eventID}" type="date" value={event.endDate}
+                  oninput={(e) => updateEvent(event.eventID, 'endDate', e.target.value)} />
+              </div>
             </div>
             <div class="field">
               <label for="desc-{event.eventID}">Description</label>
@@ -301,7 +311,7 @@
             </div>
           </div>
           {:else}
-            <div class="event-fields">
+            <div class="event-fields viewing">
               <div class="field-row">
                 <div class="field">
                   <span class="field-label">Title</span>
@@ -312,23 +322,18 @@
                   {/if}
                 </div>
                 <div class="field">
-                  <span class="field-label">Type</span>
-                  <span class="field-value">{capitalize(event.type)}</span>
+                  <span class="field-label">Start Date</span>
+                  <span class="field-value">{formatDate(event.startDate)}</span>
+                </div>
+                <div class="field">
+                  <span class="field-label">End Date</span>
+                  <span class="field-value">{formatDate(event.endDate)}</span>
                 </div>
               </div>
-              <div class="field">
-                <span class="field-label">Start Date</span>
-                <span class="field-value">{formatDate(event.startDate)}</span>
-              </div>
-              <div class="field">
-                <span class="field-label">End Date</span>
-                <span class="field-value">{formatDate(event.endDate)}</span>
-              </div>
-
               {#if event.description}
                 <div class="field">
                   <span class="field-label">Description</span>
-                  <span class="field-value">{event.description}</span>
+                  <span class="field-value desc">{event.description}</span>
                 </div>
               {/if}
             </div>
@@ -343,32 +348,29 @@
         <div class="confirm-box">
           <h3>Confirm Save</h3>
           <p>Save {events.length} event{#if events.length !== 1}s{/if}?</p>
-          <p class="confirm-hint">You won't be able to edit after saving.</p>
+          <p class="confirm-hint">You can still make edits after saving!</p>
           <div class="confirm-actions">
             <button class="btn-secondary" onclick={cancelSave}>Cancel</button>
-            <button class="btn-primary" onclick={confirmSave}>Confirm</button>
+            <button class="btn-primary" onclick={confirmSave}>Save Events</button>
           </div>
         </div>
       </div>
   {/if}
   <footer class="action-bar">
-    {#if saveError}
-      <p class="error-message">{saveError}</p>
-    {/if}
-
-    {#if cancelError}
-      <p class="error-message">{cancelError}</p>
-    {/if}
-
-    {#if !saved}
-      <button class="btn-primary" onclick={attemptSave} disabled={events.length==0}>Save Events</button>
-sul      <button class="btn-secondary" onclick={cancelUpload}>Cancel Upload</button>
-    {/if}
-    <button class="btn-primary" onclick={() => {
-      $currPage = 'calculator';
-    }}>
-      Go to Calculator
-    </button>
+    <div class="action-errors">
+      {#if saveError}
+        <p class="error-message">{saveError}</p>
+      {/if}
+      {#if cancelError}
+        <p class="error-message">{cancelError}</p>
+      {/if}
+    </div>
+    <div class="action-buttons">
+      {#if !saved}
+        <button class="btn-primary" onclick={attemptSave} disabled={events.length==0}>Save Events</button>
+        <button class="btn-secondary" onclick={cancelUpload}>Cancel Upload</button>
+      {/if}
+    </div>
   </footer>
 </div>
 {/if}
@@ -378,31 +380,76 @@ sul      <button class="btn-secondary" onclick={cancelUpload}>Cancel Upload</but
     max-width: 800px; 
     margin: 1.5rem auto; 
     padding: 0 1rem; 
+    font-family: 'DM Sans', sans-serif;
   }
   .verify-header { 
     margin-bottom: 1.5rem; 
     padding-bottom: 1rem; 
-    border-bottom: 1px solid #e2e8f0; 
+    border-bottom: 1px solid #e8e5df; 
+    text-align: center;
   }
   .verify-header h2 { 
     margin: 0 0 0.25rem; 
     font-size: 1.4rem; 
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    color: #1a1a1a;
   }
   .sylla-meta { 
-    color: #64748b; 
-    font-size: 0.9rem; 
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0;
+    justify-content: center ;
   }
-  .sylla-meta span { 
-    margin-left: 0.25rem; 
+  .meta-chip {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    background: #efefef;
+    border: 1px solid #c0bfbd;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    color: #555;
   }
   .events-section h3 { 
     margin-bottom: 1rem; 
+    font-family: 'Fraunces', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .event-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef4e8;
+    color: #2d5016;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.1rem 0.55rem;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
   }
   .empty-state { 
     text-align: center; 
     padding: 2rem; 
-    color: #94a3b8; 
-    border: 2px dashed #e2e8f0; border-radius: 8px; 
+    color: #aaa9a4; 
+    border: 2px dashed #e8e5df; 
+    border-radius: 8px; 
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
   }
   .events-list { 
     display: flex; 
@@ -410,13 +457,16 @@ sul      <button class="btn-secondary" onclick={cancelUpload}>Cancel Upload</but
     gap: 1rem; 
   }
   .event-card { 
-    border: 1px solid #e2e8f0; 
+    border: 1px solid #e8e5df; 
     border-radius: 10px; 
     padding: 1rem 1.25rem; 
     background: #fff; 
   }
+  .event-card:hover {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
   .event-card.is-new { 
-    border-left: 4px solid #3b82f6; 
+    border-left: 4px solid #8fae72; 
   }
   .event-card-header { 
     display: flex; 
@@ -426,7 +476,7 @@ sul      <button class="btn-secondary" onclick={cancelUpload}>Cancel Upload</but
   }
   .event-number { 
     font-weight: 700; 
-    color: #64748b; 
+    color: #aaa9a4;
     font-size: 0.85rem; 
   }
   .event-header-actions { 
@@ -440,17 +490,24 @@ sul      <button class="btn-secondary" onclick={cancelUpload}>Cancel Upload</but
     letter-spacing: 0.05em; 
     padding: 0.15rem 0.5rem; 
     border-radius: 4px; 
-    background: #f1f5f9; 
-    color: #475569; 
   }
   .event-new-badge { 
-    background: #dbeafe; 
-    color: #1e40af; 
+    background: #eaf2fb;
+    color: #1a4a7a;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.55rem;
+    border-radius: 20px; 
   }
   .event-fields { 
     display: flex; 
     flex-direction: column; 
     gap: 0.5rem; 
+  }
+  .viewing {
+    gap: 0.4rem;
   }
   .field-row { 
     display: flex; 
@@ -466,36 +523,42 @@ sul      <button class="btn-secondary" onclick={cancelUpload}>Cancel Upload</but
     display: block; 
     font-size: 0.75rem; 
     font-weight: 500; 
-    color: #94a3b8; 
+    color: #aaa9a4; 
     text-transform: uppercase; 
     letter-spacing: 0.03em; 
     margin-bottom: 0.15rem; 
+  }
+  .desc {
+    color: #666;
+    font-size: 0.85rem;
   }
   .field label { 
     display: block; 
     font-size: 0.8rem; 
     font-weight: 500; 
-    color: #475569; 
+    color: #555; 
     margin-bottom: 0.2rem; 
   }
   .field input, .field textarea, .field select { 
     width: 100%; 
     padding: 0.45rem 0.6rem; 
-    border: 1px solid #cbd5e1; 
+    border: 1px solid #e0ddd7;
     border-radius: 6px; 
     font-size: 0.9rem; 
     box-sizing: border-box; 
-    font-family: inherit; 
+    font-family: 'DM Sans', sans-serif;
+    color: #1a1a1a;
+    background: #fff;
   }
   .field input:focus, .field textarea:focus, .field select:focus { 
     outline: none; 
-    border-color: #4f46e5; 
-    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15); 
+    border-color: #8fae72; 
+    box-shadow: 0 0 0 2px rgba(143,174,114,0.15);
   }
   .field-value { 
     display: block; 
     font-size: 0.9rem; 
-    color: #1e293b; 
+    color: #1a1a1a; 
   }
   .action-bar { 
     display: flex; 
@@ -503,66 +566,93 @@ sul      <button class="btn-secondary" onclick={cancelUpload}>Cancel Upload</but
     gap: 0.75rem; 
     margin-top: 2rem; 
     padding-top: 1rem; 
-    border-top: 1px solid #e2e8f0; 
+    border-top: 1px solid #e8e5df; 
+  }
+  .action-errors {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
   }
   .btn-primary { 
     padding: 0.55rem 1.5rem; 
-    background: #4f46e5; 
+    background: #3d6b1a;
     color: #fff; 
     border: none; 
     border-radius: 6px; 
     cursor: pointer; 
     font-weight: 500; 
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    transition: background 0.15s, transform 0.1s;
   }
   .btn-primary:hover { 
-    background: #4338ca; 
+    background: #2d5016;
   }
   .btn-secondary { 
     padding: 0.55rem 1.5rem; 
     background: #fff; 
-    border: 1px solid #cbd5e1; 
+    border: 1px solid #e0ddd7; 
     border-radius: 6px; 
     cursor: pointer; 
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: #555;
+    transition: background 0.15s, border-color 0.15s;
   }
   .btn-secondary:hover { 
-    background: #f8fafc; 
+    background: #f7f6f3;
+    border-color: #ccc9c2;
   }
   .btn-edit { 
-    background: #f1f5f9; 
-    border: 1px solid #cbd5e1; 
+    background: #f7f6f3; 
+    border: 1px solid #e8e5df; 
     border-radius: 5px; 
     padding: 0.25rem 0.65rem; 
     cursor: pointer; 
     font-size: 0.8rem; 
-    color: #475569; 
+    color: #555;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.15s;
   }
   .btn-edit:hover { 
-    background: #e2e8f0; 
+    background: #eef4e8;
+    border-color: #c5d9ad;
+    color: #2d5016; 
   }
   .btn-add { 
     padding: 0.4rem 1rem; 
-    background: #eef2ff; 
-    color: #4f46e5; 
-    border: 1px solid #c7d2fe; 
+    background: #eef4e8;
+    color: #2d5016;
+    border: 1px solid #c5d9ad; 
     border-radius: 6px; 
     cursor: pointer; 
     font-weight: 500; 
     font-size: 0.85rem; 
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.15s, border-color 0.15s;
   }
   .btn-add:hover { 
-    background: #e0e7ff; 
+    background: #e2eed8;
+    border-color: #adc994;
   }
   .btn-remove { 
     background: none; 
     border: none; 
-    color: #ef4444; 
+    color: #aaa9a4;
     cursor: pointer; 
     font-size: 1.1rem; 
     padding: 0.25rem; 
     line-height: 1; 
   }
   .btn-remove:hover { 
-    color: #dc2626; 
+    background: #fef2f2;
+    border-color: #f5c2c2;
+    color: #c0392b;
   }
   .error-message {
     padding: 0.55rem 1rem;
@@ -576,7 +666,7 @@ sul      <button class="btn-secondary" onclick={cancelUpload}>Cancel Upload</but
   .confirm-container {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(26, 26, 26, 0.35);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -589,20 +679,26 @@ sul      <button class="btn-secondary" onclick={cancelUpload}>Cancel Upload</but
     max-width: 420px;
     width: 90%;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e8e5df;
   }
   .confirm-box h3 { 
     margin: 0 0 0.75rem; 
+    font-family: 'Fraunces', serif;
+    font-size: 1.15rem;
+    color: #1a1a1a;
   }
   .confirm-box p { 
     margin: 0.5rem 0; 
+    color: #333;
+    font-size: 0.95rem;
   }
   .confirm-hint { 
     font-size: 0.8rem; 
-    color: #94a3b8; 
+    color: #aaa9a4; 
   }
   .confirm-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 0.75rem;
     margin-top: 1.25rem;
   }
