@@ -26,7 +26,7 @@ describe('Syllabus Save & Delete Endpoints', () => {
             instructor: 'Dr. Test',
             semester: '1st Sem 2026',
             events: [
-                { title: 'Original Event', date: new Date('2026-03-15'), type: 'exam', description: 'Initial' }
+                { title: 'Original Event', startDate: new Date('2026-03-15'), type: 'exam', description: 'Initial' }
             ]
         })
         testSyllabusId = doc._id.toString()
@@ -46,8 +46,8 @@ describe('Syllabus Save & Delete Endpoints', () => {
             instructor: 'Dr. Test',
             semester: '1st Sem 2026',
             events: [
-                { title: 'Midterm', date: '2026-03-20', type: 'exam', description: 'Covers ch 1-5' },
-                { title: 'Final', date: '2026-05-10', type: 'exam', description: 'Comprehensive' },
+                { title: 'Midterm', startDate: '2026-03-20', endDate: '2026-03-22', type: 'exam', description: 'Covers ch 1-5' },
+                { title: 'Final', startDate: '2026-05-10', type: 'exam', description: 'Comprehensive' },
             ]
         }
 
@@ -81,6 +81,39 @@ describe('Syllabus Save & Delete Endpoints', () => {
         expect(res.body.error).toBe('At least one event is required.')
     })
 
+    test('Reject Syllabus if event is missing a title', async () => {
+        const payload = {
+            SyllaID: testSyllabusId,
+            title: 'Test Course',
+            code: 'TEST101',
+            instructor: 'Dr. Test',
+            semester: '1st Sem 2026',
+            events: [
+                { title: 'Midterm', startDate: '2026-03-20', endDate: '2026-03-22', type: 'exam', description: 'Covers ch 1-5' },
+                { title: '', startDate: '2026-04-21', endDate: '2026-04-22', type: 'project', description: 'No titulo' }
+            ]
+        }
+        const res = (await request(app).post('syllabus/save')).send(payload)
+        expect(res.statusCode).toBe(400)
+        expect(res.body.error).toMatch('')
+    })
+
+    test('Reject save if an event is missing a starting date', async () => {
+    const payload = {
+        SyllaID: testSyllabusId,
+        title: 'Test Course',
+        code: 'TEST101',
+        instructor: 'Dr. Test',
+        semester: '1st Sem 2026',
+        events: [
+            { title: 'Midterm', startDate: null, type: 'exam', description: '' }
+        ]
+    }
+    const res = await request(app).post('/syllabus/save').send(payload)
+    expect(res.statusCode).toBe(400)
+    expect(res.body.error).toMatch('')
+})
+
     test('Return 404 if ID is not found', async () => {
         const fakeId = new mongoose.Types.ObjectId().toString()
         const payload = {
@@ -89,7 +122,7 @@ describe('Syllabus Save & Delete Endpoints', () => {
             code: 'TEST202',
             instructor: 'Nobody',
             semester: 'N/A',
-            events: [{ title: 'Event', date: '2026-01-01', type: 'other', description: '' }]
+            events: [{ title: 'Event', startDate: '2026-01-01', type: 'other', description: '' }]
         }
 
         const res = await request(app)
@@ -107,7 +140,7 @@ describe('Syllabus Save & Delete Endpoints', () => {
             code: 'TEST202',
             instructor: 'Test',
             semester: 'Test',
-            events: [{ title: 'Event', date: '2026-01-01', type: 'other', description: '' }]
+            events: [{ title: 'Event', startDate: '2026-01-01', type: 'other', description: '' }]
         }
 
         const res = await request(app)
