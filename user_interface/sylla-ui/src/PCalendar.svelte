@@ -219,7 +219,6 @@
 <!-- <Calendar bind:this={ec} plugins={[DayGrid, TimeGrid, List, Interaction]} {options} /> -->
   
     <div id="addbtns">
-        <button class="add" onclick={() => $currPage = 'upload'}>Upload Syllabus</button>
         <button class="add" onclick={() => (showModal = true)}>Add Event</button>
         <button class="add" onclick={() => window.location.href = 'http://localhost:3000/export'}>Export</button>
     </div>
