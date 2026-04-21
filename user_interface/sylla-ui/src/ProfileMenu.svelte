@@ -6,16 +6,19 @@
 
 <div class="profile-wrapper">
 <button class="avatar-btn" onclick={() => open = !open}>
-  <img src={user.profilePicture} alt={user.displayName} class="avatar" />
+  <img 
+    src={user.profilePicture} 
+    alt={user.displayName}
+    class="avatar"
+    referrerpolicy="no-referrer"
+/>
 </button>
 
   {#if open}
     <div class="dropdown">
       <p class="username">{user.displayName}</p>
       <hr />
-      <button onclick={() => { currPage.set('calendar'); open = false; }}>Calendar</button>
-      <button onclick={() => { currPage.set('charts'); open = false; }}>Dashboard</button>
-      <button onclick={() => { currPage.set('calculator'); open = false; }}>Calculator</button>
+      
       <button onclick={() => { currPage.set('settings'); open = false; }}>Settings</button>
       <button onclick={() => window.location.href = 'http://localhost:3000/logout'}>Logout</button>
     </div>
@@ -35,14 +38,23 @@
     cursor: pointer;
     object-fit: cover;
     border: 2px solid #e5e5e5;
-  }
+    overflow: hidden;        
+    display: block;          
+    background-color: #f0f0f0; 
+}
 
   .avatar-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  border-radius: 50%;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
   .avatar:hover {

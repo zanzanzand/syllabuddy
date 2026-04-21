@@ -36,9 +36,13 @@
         const monthlyCounts = Array(12).fill(0);
         const typeCounts = {};
 
-        events.forEach(event => {
-            const date = new Date(event.start);
-            monthlyCounts[date.getMonth()]++;
+         events.forEach(event => {
+            const dateStr = event.startDate || event.start;
+            if (!dateStr) return;
+            const date = new Date(dateStr);
+            const month = date.getMonth();
+            monthlyCounts[month]++;
+
             const type = event.type || 'event';
             typeCounts[type] = (typeCounts[type] || 0) + 1;
         });

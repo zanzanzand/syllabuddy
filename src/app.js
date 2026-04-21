@@ -453,6 +453,24 @@ app.put('/preferences/colors/reset', isAuthenticated, async (req, res) => {
     }
 })
 
+app.put('/events/:id', isAuthenticated, async (req, res) => {
+    try {
+        const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(event);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to edit event.' });
+    }
+})
+
+app.delete('/events/:id', isAuthenticated, async (req, res) => {
+    try {
+        await Event.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Event deleted.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete event.'});
+    }
+})
+
 // To get the correct error codes since multer errors always return 500.
 app.use((err, req, res, next) => {
     if (err.code === 'LIMIT_FILE_SIZE') {
