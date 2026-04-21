@@ -440,21 +440,21 @@ app.put('/preferences/colors/reset', isAuthenticated, async (req, res) => {
     }
 })
 
-app.put('/events/:id', async (req, res) => {
+app.put('/events/:id', isAuthenticated, async (req, res) => {
     try {
         const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.json(event);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to edit event.' });
     }
 })
 
-app.delete('/events/:id', async (req, res) => {
+app.delete('/events/:id', isAuthenticated, async (req, res) => {
     try {
         await Event.findByIdAndDelete(req.params.id);
         res.json({ message: 'Event deleted.' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to delete event.'});
     }
 })
 
