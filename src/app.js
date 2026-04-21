@@ -39,6 +39,14 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
+if (process.env.NODE_ENV == 'test') {
+    app.use((req, res, next) => {
+        req.user = global.__testUser
+        req.isAuthenticated = () => !!global.__testUser
+        next()
+    })
+}
+
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -79,11 +87,11 @@ const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
-        const allowed = ['application/pdf', 'image/png']
+        const allowed = ['application/pdf']
         if (allowed.includes(file.mimetype)){
             cb(null, true)
         } else{
-            cb(new Error('Invalid file type. Only PDF and PNG allowed.'))
+            cb(new Error('Invalid file type. Only PDF allowed.'))
         }
     }
 })
@@ -125,13 +133,18 @@ app.post('/upload', isAuthenticated, upload.single('syllabus'), async (req, res)
             userId: req.user._id,
             grading: gradeResponse.grading,
             events: llmResponse.events.map(event => {
-                let date = null
+                let startDate = null
                 if (event.startDate) {
-                    date = new Date(event.startDate)
+                    startDate = new Date(event.startDate)
+                }
+                let endDate = null
+                if (event.endDate) {
+                    endDate = new Date(event.endDate)
                 }
                 return {
                     title: event.title,
-                    startDate: date,
+                    startDate: startDate,
+                    endDate: endDate,
                     type: event.type,
                     description: event.description,
                     userId: req.user._id
@@ -457,5 +470,32 @@ app.delete('/events/:id', isAuthenticated, async (req, res) => {
         res.status(500).json({ error: 'Failed to delete event.'});
     }
 })
+
+// To get the correct error codes since multer errors always return 500.
+app.use((err, req, res, next) => {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large. Max 10MB.' })
+    }
+    if (err.message === 'Invalid file type. Only PDF allowed.') {
+        return res.status(400).json({ error: err.message })
+    }
+    res.status(500).json({ error: err.message })
+})
+
+// auto-input parsed grade weights into the calculator
+app.post('/parse-grades', async (req, res) => {
+  try {
+    const { fileBuffer, mimeType } = req.body;
+
+    const result = await parseGradeWeights(
+      Buffer.from(fileBuffer, 'base64'),
+      mimeType
+    );
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Parsing failed' });
+  }
+});
 
 module.exports = app
