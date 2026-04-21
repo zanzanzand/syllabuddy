@@ -143,6 +143,18 @@
     }
 
     onMount(async () => {
+
+    const prefsRes = await fetch('http://localhost:3000/preferences', {
+        credentials: 'include'
+    });
+    if (prefsRes.ok) {
+        const prefs = await prefsRes.json();
+        if (prefs.calendarTheme) calendarTheme.set(prefs.calendarTheme);
+        if (prefs.calendarBackground) calendarBackground.set(prefs.calendarBackground);
+        if (prefs.backgroundOpacity !== undefined) backgroundOpacity.set(prefs.backgroundOpacity);
+        if (prefs.categoryColors) categoryColors.set(prefs.categoryColors);
+    }
+    
     const [eventsRes, syllabiRes] = await Promise.all([
         fetch ('http://localhost:3000/events', { credentials: 'include' }),
         fetch ('http://localhost:3000/syllabi', { credentials: 'include' })
@@ -467,5 +479,105 @@
 
     #final:hover {
     background-color: oklch(92.2% 0 0);
+    }
+
+    .theme-dark :global(.ec-button) {
+    background-color: #2a2a3e !important;
+    color: #cdd6f4 !important;
+    border-color: #45475a !important;
+    }
+
+    .theme-dark :global(.ec-button:hover) {
+        background-color: #3a3a5e !important;
+    }
+
+    .theme-dark :global(.ec-button-active) {
+        background-color: #45475a !important;
+    }
+
+    .theme-high-contrast :global(.ec-button) {
+        background-color: #000 !important;
+        color: #fff !important;
+        border-color: #fff !important;
+    }
+
+    .theme-high-contrast :global(.ec-button:hover) {
+        background-color: #333 !important;
+    }
+
+    .theme-dark :global(.ec-button) {
+        background-color: #2a2a3e !important;
+        color: #cdd6f4 !important;
+        border-color: #45475a !important;
+    }
+
+    .theme-dark :global(.ec-button:hover) {
+        background-color: #3a3a5e !important;
+    }
+
+    .theme-dark :global(.ec-button-active),
+    .theme-dark :global(.ec-button.active) {
+        background-color: #45475a !important;
+        color: #ffffff !important;
+    }
+
+    .theme-dark :global(.ec-title) {
+        color: #cdd6f4 !important;
+    }
+
+    /* Also style the Add Event / Export / Upload buttons in dark mode */
+    .theme-dark .add {
+        background: #2a2a3e;
+        color: #cdd6f4;
+        border-color: #45475a;
+    }
+
+    .theme-dark .add:hover {
+        background: #3a3a5e;
+    }
+
+    .theme-dark :global(.ec-header),
+    .theme-dark :global(.ec-header *) {
+        background-color: #1e1e2e !important;
+        color: #cdd6f4 !important;
+        border-color: #45475a !important;
+    }
+
+    /* High contrast toolbar buttons */
+    .theme-high-contrast :global(.ec-button) {
+        background-color: #000 !important;
+        color: #fff !important;
+        border-color: #fff !important;
+    }
+
+    .theme-high-contrast :global(.ec-button:hover) {
+        background-color: #333 !important;
+    }
+
+    .theme-high-contrast :global(.ec-button-active),
+    .theme-high-contrast :global(.ec-button.active) {
+        background-color: #fff !important;
+        color: #000 !important;
+    }
+
+    .theme-high-contrast :global(.ec-title) {
+        color: #fff !important;
+    }
+
+    .theme-high-contrast .add {
+        background: #000;
+        color: #fff;
+        border-color: #fff;
+    }
+
+    .theme-high-contrast .add:hover {
+        background: #333;
+    }
+
+    .theme-high-contrast :global(.ec-header),
+    .theme-high-contrast :global(.ec-header *) {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border-color: #ffffff !important;
     }
 </style>

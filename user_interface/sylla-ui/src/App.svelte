@@ -30,7 +30,7 @@
 {#if !isLoggedIn}
   <div class="landing">
     <div class="landing-card">
-      <div class="logo-mark">S</div>
+      <img src="/logo.png" alt="SyllaBuddy" class="landing-logo" />
       <h1>SyllaBuddy</h1>
       <p>Your academic calendar, organized.</p>
       <a href="http://localhost:3000/auth/google" class="login-btn">
@@ -48,9 +48,9 @@
   <div class="app-shell">
     <nav class="topnav">
       <div class="nav-brand" onclick={() => currPage.set('calendar')} role="button" tabindex="0"
-        onkeydown={(e) => e.key === 'Enter' && currPage.set('calendar')}>
-        <span class="brand-mark">S</span>
-        <span class="brand-name">SyllaBuddy</span>
+          onkeydown={(e) => e.key === 'Enter' && currPage.set('calendar')}>
+          <img src="/logo.png" alt="SyllaBuddy" class="brand-logo" />
+          <span class="brand-name">SyllaBuddy</span>
       </div>
       <div class="nav-links">
         <button class:active={$currPage === 'calendar'} onclick={() => currPage.set('calendar')}>Calendar</button>
@@ -111,19 +111,14 @@
     box-shadow: 0 8px 40px rgba(0,0,0,0.07);
   }
 
-  .logo-mark {
-    width: 56px;
-    height: 56px;
-    background: #2d5016;
-    color: #c8e6a0;
-    font-family: 'Fraunces', serif;
-    font-size: 1.8rem;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .landing-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    object-fit: cover;
     margin: 0 auto 1.25rem;
-  }
+    display: block;
+}
 
   .landing-card h1 {
     font-family: 'Fraunces', serif;
@@ -191,19 +186,12 @@
     flex-shrink: 0;
   }
 
-  .brand-mark {
+  .brand-logo {
     width: 32px;
     height: 32px;
-    background: #2d5016;
-    color: #c8e6a0;
-    font-family: 'Fraunces', serif;
-    font-size: 1.1rem;
     border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    object-fit: cover;
   }
-
   .brand-name {
     font-family: 'Fraunces', serif;
     font-size: 1.1rem;
