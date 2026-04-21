@@ -455,8 +455,9 @@ app.put('/preferences/colors/reset', isAuthenticated, async (req, res) => {
 
 app.put('/events/:id', isAuthenticated, async (req, res) => {
     try {
-        const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const event = await Event.findByIdAndUpdate({ _id: req.params.id, userId: req.user._id }, req.body, { new: true });
         res.json(event);
+        if (!event) return res.status(404).json({ error: 'Event not found.' })
     } catch (error) {
         res.status(500).json({ error: 'Failed to edit event.' });
     }
@@ -464,7 +465,8 @@ app.put('/events/:id', isAuthenticated, async (req, res) => {
 
 app.delete('/events/:id', isAuthenticated, async (req, res) => {
     try {
-        await Event.findByIdAndDelete(req.params.id);
+        await Event.findByIdAndDelete({ _id: req.params.id, userId: req.user._id });
+        if (!event) return res.status(404).json({ error: 'Event not found.' })
         res.json({ message: 'Event deleted.' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete event.'});
