@@ -205,7 +205,8 @@
                     start: new Date(event.startDate),
                     end: new Date(event.endDate || event.startDate),
                     backgroundColor: getEventColor(event.type),
-                    editable: true
+                    editable: true,
+                    allDay: true
                 })
             })
         })
