@@ -198,7 +198,7 @@ app.post('/syllabus/save', isAuthenticated, async (req, res) => {
             return res.status(400).json({ error: 'At least one event is required.' })
         }
 
-        const syllabus = await Syllabus.findByIdAndUpdate(
+        const syllabus = await Syllabus.findOneAndUpdate(
             { 
                 _id: payload.SyllaID,
                 userId: req.user._id
@@ -226,7 +226,7 @@ app.post('/syllabus/save', isAuthenticated, async (req, res) => {
 
 app.delete('/syllabus/delete/:id', isAuthenticated, async (req, res) => {
     try {
-        const syllabus = await Syllabus.findByIdAndDelete({
+        const syllabus = await Syllabus.findOneAndDelete({
             _id: req.params.id,
             userId: req.user._id
         })
@@ -455,9 +455,9 @@ app.put('/preferences/colors/reset', isAuthenticated, async (req, res) => {
 
 app.put('/events/:id', isAuthenticated, async (req, res) => {
     try {
-        const event = await Event.findByIdAndUpdate({ _id: req.params.id, userId: req.user._id }, req.body, { new: true });
-        res.json(event);
+        const event = await Event.findOneAndUpdate({ _id: req.params.id, userId: req.user._id }, req.body, { new: true });
         if (!event) return res.status(404).json({ error: 'Event not found.' })
+        res.json(event);
     } catch (error) {
         res.status(500).json({ error: 'Failed to edit event.' });
     }
@@ -465,7 +465,7 @@ app.put('/events/:id', isAuthenticated, async (req, res) => {
 
 app.delete('/events/:id', isAuthenticated, async (req, res) => {
     try {
-        await Event.findByIdAndDelete({ _id: req.params.id, userId: req.user._id });
+        const event = await Event.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
         if (!event) return res.status(404).json({ error: 'Event not found.' })
         res.json({ message: 'Event deleted.' });
     } catch (error) {
