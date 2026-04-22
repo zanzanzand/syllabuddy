@@ -9,5 +9,9 @@ export const categoryColors = writable({
     'assignment': '#4ECDC4',
     'project': '#45B7D1',
     'quiz': '#96CEB4',
+    'recitation': '#F7DC6F',
+    'lecture': '#A9CCE3',
+    'consultation': '#A9DFBF',
+    'break': '#D7DBDD',
     'other': '#DDA0DD'
 })

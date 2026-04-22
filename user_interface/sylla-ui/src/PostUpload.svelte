@@ -1,7 +1,7 @@
 <script>
   import { currPage, scannedSyllabus, categoryColors } from './store.js'
  
-  const EVENT_TYPES = ['exam', 'assignment', 'quiz', 'project', 'consultation', 'lecture', 'other']
+  const EVENT_TYPES = ['exam', 'assignment', 'quiz', 'project', 'consultation', 'lecture', 'recitation', 'break', 'other']
 
   let events = $state([])
   let saved = $state(false)
@@ -139,12 +139,16 @@
     for (let i = 0; i < events.length; i++) {
         const e = events[i]
         if (!e.title || !e.title.trim()) {
-            saveError = `Event #${i + 1} is missing a title.`
-            return
+          saveError = `Event #${i + 1} is missing a title.`
+          return
+        }
+        if (!e.startDate){
+          saveError = `Event #${i + 1} is missing a start date.`
+          return
         }
         if (!e.type) {
-            saveError = `Event #${i + 1} is missing a type.`
-            return
+          saveError = `Event #${i + 1} is missing a type.`
+          return
         }
     }
     showConfirm = true
@@ -182,7 +186,7 @@
 
       if (!res.ok){
         const body = await res.json()
-        throw new Error(body.error)
+        throw new Error(body.error || 'Failed to save. Please try again.')
       }
 
       const result = await res.json()
@@ -207,8 +211,7 @@
       })
 
       if (!res.ok){
-        const body = await res.json()
-        throw new Error(body.error)
+        throw new Error('Failed to cancel. Please try again.')
       } 
 
       $scannedSyllabus = null
