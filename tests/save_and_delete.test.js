@@ -200,7 +200,7 @@ describe('Syllabus Save & Delete Endpoints', () => {
 
     test('Reject attempt to delete if Syllabus not owned by user', async () => {
         global.__testUser._id = new mongoose.Types.ObjectId()
-        const res = await request(app).delete('/syllabus/delete' + testSyllabusId)
+        const res = await request(app).delete('/syllabus/delete/' + testSyllabusId)
         expect(res.statusCode).toBe(404)
     })
 
