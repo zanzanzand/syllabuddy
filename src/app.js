@@ -11,6 +11,7 @@ const User = require('./models/User.js')
 const { Event } = require('./models/Event.js')
 const { parseSyllabus, parseGradeWeights } = require('./llm/date_parser.js')
 const { createEvents } = require("ics")
+const e = require('express')
 
 
 const app = express()
@@ -198,6 +199,14 @@ app.post('/syllabus/save', isAuthenticated, async (req, res) => {
             return res.status(400).json({ error: 'At least one event is required.' })
         }
 
+        if (payload.events.find(e => !e.title)) {
+            return res.status(400).json({ error: 'Each event must have a title.' })
+        }
+
+        if (payload.events.find(e => !e.startDate)) {
+            return res.status(400).json({ error: 'Each event must have a start date.'})
+        }
+
         const syllabus = await Syllabus.findOneAndUpdate(
             { 
                 _id: payload.SyllaID,
@@ -208,7 +217,10 @@ app.post('/syllabus/save', isAuthenticated, async (req, res) => {
                 code: payload.code,
                 instructor: payload.instructor,
                 semester: payload.semester,
-                events: payload.events,
+                events: payload.events.map(e => ({
+                    ...e,
+                    userId: req.user._id
+                })),
             },
             { returnDocument: 'after' }
         )
