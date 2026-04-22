@@ -133,11 +133,15 @@
     }
 
     async function reloadCalendarEvents() {
-        const res = await fetch('http://localhost:3000/events', {
-            credentials: 'include'
-        });
-        if (res.ok) {
-            const saved = await res.json();
+        const [eventsRes, syllabiRes] = await Promise.all([
+            fetch('http://localhost:3000/events', { credentials: 'include' }),
+            fetch('http://localhost:3000/syllabi', { credentials: 'include' })
+        ]);
+
+        const allEvents = [];
+
+        if (eventsRes.ok) {
+            const saved = await eventsRes.json();
             const formattedEvents = saved.map(event => ({
                 id: event._id,
                 title: event.title,
@@ -151,10 +155,27 @@
                 editable: true,
                 allDay: true
             }));
-            console.log('formattedEvents:', formattedEvents);
-            ec.setOption('events', formattedEvents);
-            console.log('setOption called');
+            allEvents.push(...formattedEvents)
         }
+
+        if (syllabiRes.ok) {
+            const syllabi = await syllabiRes.json();
+            syllabi.forEach(function(syllabus) {
+                syllabus.events.forEach(function(event) {
+                    if (!event.startDate) return;
+                    allEvents.push({
+                        title: event.title,
+                        start: new Date(event.startDate),
+                        end: new Date(event.endDate || event.startDate),
+                        backgroundColor: getEventColor(event.type),
+                        editable: true,
+                        allDay: true
+                    });
+                });
+            });
+        }
+
+        ec.setOption('events', allEvents)
     }
 
     onMount(async () => {
