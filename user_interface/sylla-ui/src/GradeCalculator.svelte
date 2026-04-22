@@ -45,48 +45,6 @@
     categories = categories;
   }
 
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(file);
-    });
-  }
-
-  async function handleUpload(file) {
-    const base64 = await fileToBase64(file);
-
-    const res = await fetch('http://localhost:3000/parse-grades', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fileBuffer: base64.split(',')[1],
-        mimeType: file.type
-      })
-    });
-
-    const data = await res.json();
-
-    $scannedSyllabus = {
-      ...$scannedSyllabus,
-      grading: data.grading
-    };
-
-    // Map parsed grading into the calculator
-    if (data.grading) {
-      categories = data.grading.map(cat => ({
-        name: cat.name ?? "",
-        weight: cat.weight ?? "",
-        items: (cat.items ?? []).map(item => ({
-          name: item.name ?? "",
-          score: item.score ?? "",
-          total: item.total ?? ""
-        }))
-      }));
-    }
-  }
-
   let finalGrade = $derived(computeFinalGrade(categories));
 </script>
 
