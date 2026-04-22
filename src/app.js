@@ -217,7 +217,10 @@ app.post('/syllabus/save', isAuthenticated, async (req, res) => {
                 code: payload.code,
                 instructor: payload.instructor,
                 semester: payload.semester,
-                events: payload.events,
+                events: payload.events.map(e => ({
+                    ...e,
+                    userId: req.user._id
+                })),
             },
             { returnDocument: 'after' }
         )
