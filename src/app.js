@@ -127,6 +127,10 @@ app.post('/upload', isAuthenticated, upload.single('syllabus'), async (req, res)
             parseGradeWeights(req.file.buffer, req.file.mimetype)
         ])
 
+        if (!llmResponse.events || llmResponse.events.length==0) {
+            return res.status(400).json({ error: 'No events were parsed from the syllabus.'})
+        }
+
         const syllabus = await Syllabus.create({
             title: llmResponse.course_title,
             code: llmResponse.course_code,
