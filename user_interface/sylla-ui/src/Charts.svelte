@@ -22,7 +22,21 @@
     let lineData = $state({ labels: [], datasets: [] });
     let pieData = $state({ labels: [], datasets: [] });
 
+    let categoryColorsMap = $state({});
+
     onMount(async () => {
+        // Fetch preferences for category colors
+        const prefsRes = await fetch('http://localhost:3000/preferences', {
+            credentials: 'include'
+        });
+        if (prefsRes.ok) {
+            const prefs = await prefsRes.json();
+            if (prefs.categoryColors) {
+                categoryColorsMap = prefs.categoryColors;
+            }
+        }
+
+        // Fetch events
         const res = await fetch('http://localhost:3000/events', {
             credentials: 'include'
         });
@@ -36,14 +50,13 @@
         const monthlyCounts = Array(12).fill(0);
         const typeCounts = {};
 
-         events.forEach(event => {
+        events.forEach(event => {
             const dateStr = event.startDate || event.start;
             if (!dateStr) return;
             const date = new Date(dateStr);
-            const month = date.getMonth();
-            monthlyCounts[month]++;
+            monthlyCounts[date.getMonth()]++;
 
-            const type = event.type || 'event';
+            const type = event.type || 'other';
             typeCounts[type] = (typeCounts[type] || 0) + 1;
         });
 
@@ -52,19 +65,24 @@
             datasets: [{
                 label: 'Tasks & Events',
                 data: monthlyCounts,
-                borderColor: '#6366f1',
+                borderColor: categoryColorsMap['other'] ?? '#6366f1',
                 backgroundColor: 'rgba(99,102,241,0.1)',
-                pointBackgroundColor: '#6366f1',
+                pointBackgroundColor: categoryColorsMap['other'] ?? '#6366f1',
                 tension: 0.3,
                 fill: true
             }]
         };
 
+        const labels = Object.keys(typeCounts);
+        const backgroundColors = labels.map(label => 
+            categoryColorsMap[label] ?? '#DDA0DD'
+        );
+
         pieData = {
-            labels: Object.keys(typeCounts),
+            labels,
             datasets: [{
                 data: Object.values(typeCounts),
-                backgroundColor: COLORS
+                backgroundColor: backgroundColors
             }]
         };
     }
