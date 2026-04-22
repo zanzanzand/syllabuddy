@@ -465,11 +465,15 @@ app.put('/preferences/colors', isAuthenticated, async (req, res) => {
 app.put('/preferences/colors/reset', isAuthenticated, async (req, res) => {
     try {
         const defaultColors = {
-            'exam': '#FF6B6B',
-            'assignment': '#4ECDC4',
-            'project': '#45B7D1',
-            'quiz': '#96CEB4',
-            'other': '#DDA0DD'
+            exam: '#FF6B6B',
+            assignment: '#4ECDC4',
+            project: '#45B7D1',
+            quiz: '#96CEB4',
+            recitation: '#F7DC6F',
+            lecture: '#A9CCE3',
+            consultation: '#A9DFBF',
+            break: '#D7DBDD',
+            other: '#DDA0DD'
         }
         const user = await User.findByIdAndUpdate(
             req.user._id,

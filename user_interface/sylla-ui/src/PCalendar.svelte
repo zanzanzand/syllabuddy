@@ -329,8 +329,13 @@
                     <option value="assignment">Assignment</option>
                     <option value="project">Project</option>
                     <option value="quiz">Quiz</option>
+                    <option value="recitation">Recitation</option>
+                    <option value="lecture">Lecture</option>
+                    <option value="consultation">Consultation</option>
+                    <option value="break">Break</option>
                     <option value="other">Other</option>
                 </select>
+
             </div>
 
             <div class="form-row">
@@ -374,6 +379,10 @@
                     <option value="assignment">Assignment</option>
                     <option value="project">Project</option>
                     <option value="quiz">Quiz</option>
+                    <option value="recitation">Recitation</option>
+                    <option value="lecture">Lecture</option>
+                    <option value="consultation">Consultation</option>
+                    <option value="break">Break</option>
                     <option value="other">Other</option>
                 </select>
             </div>
