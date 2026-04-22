@@ -89,8 +89,7 @@
         if (res.ok) {
           status = 'Success!';
           showModal = false;
-          events_ = [...events_, newEvent];
-          ec.addEvent(newEvent);
+          await reloadCalendarEvents();
         } else {
           status = 'Error saving event.';
         }
