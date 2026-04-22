@@ -12,7 +12,6 @@ const User = require('./models/User.js')
 const { Event } = require('./models/Event.js')
 const { parseSyllabus, parseGradeWeights } = require('./llm/date_parser.js')
 const { createEvents } = require("ics")
-const e = require('express')
 
 
 const app = express()
@@ -162,7 +161,7 @@ app.post('/upload', isAuthenticated, upload.single('syllabus'), async (req, res)
 
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Scanning failed. The service may be busy — please try again shortly.' })
   }
 })
 
@@ -320,7 +319,7 @@ app.get('/export', isAuthenticated, async (req, res) => {
 
         if (error) {
             console.log(error);
-            return res.send(error);
+            return res.status(500).json({ error: 'Failed to generate calendar file.' });
         }
 
         res.setHeader('Content-Type', 'text/calendar');
@@ -329,7 +328,7 @@ app.get('/export', isAuthenticated, async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.send(error);
+        res.status(500).json({ error: 'Failed to export calendar.' })
     }
 });
 
