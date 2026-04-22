@@ -39,6 +39,12 @@
             center: 'title',
             end: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
         },
+        buttonText: {
+            dayGridMonth: 'month',
+            timeGridWeek: 'week',
+            timeGridDay: 'day',
+            listWeek: 'list'
+        },
         selectable: true,
         eventClick: (info) => {
             selectedEvent = info.event;
