@@ -82,6 +82,23 @@ describe('POST /upload', () => {
         expect(res.statusCode).toBe(400)
     })
 
+    test('Reject upload if parser returns no events', async () => {
+        const { parseSyllabus, parseGradeWeights } = jest.requireMock('../src/llm/date_parser')
+        parseSyllabus.mockResolvedValueOnce({
+            course_title: "Empty Course",
+            course_code: "EMPTY101",
+            instructor: "Dr. Nobody",
+            semester: "1st Sem 2026",
+            events: []
+        })
+        parseGradeWeights.mockResolvedValueOnce({ grading: {} })
+
+        const testFile = path.join(__dirname, 'test_file.pdf')
+        const res = await request(app).post('/upload').attach('syllabus', testFile)
+        expect(res.statusCode).toBe(400)
+        expect(res.body.error).toBe('No events were parsed from the syllabus.')
+    })
+
     // Successful Upload & Response Shape
 
     test('Accept valid PDF and returns syllabus document', async () => {
