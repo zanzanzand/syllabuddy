@@ -104,8 +104,16 @@
             description: data.description,
             backgroundColor: getEventColor(data.type)
         };
+        
+        let url = '';
+        if (selectedEvent.extendedProps.isSyllabusEvent) {
+            url = `http://localhost:3000/syllabus/${selectedEvent.extendedProps.syllaId}/event/${selectedEvent.extendedProps.eventId}`;
+        } 
+        else {
+            url = `http://localhost:3000/events/${selectedEvent.id}`;
+        }
 
-        const res = await fetch(`http://localhost:3000/events/${selectedEvent.id}`, {
+        const res = await fetch(url, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -120,7 +128,15 @@
     }
 
     async function handleDelete() {
-        const res = await fetch(`http://localhost:3000/events/${selectedEvent.id}`, {
+        let url = '';
+        if (selectedEvent.extendedProps.isSyllabusEvent) {
+            url = `http://localhost:3000/syllabus/${selectedEvent.extendedProps.syllaId}/event/${selectedEvent.extendedProps.eventId}`;
+        } 
+        else {
+            url = `http://localhost:3000/events/${selectedEvent.id}`;
+        }
+
+        const res = await fetch(url, {
             method: 'DELETE',
             credentials: 'include'
         });
@@ -168,6 +184,13 @@
                         start: new Date(event.startDate),
                         end: new Date(event.endDate || event.startDate),
                         backgroundColor: getEventColor(event.type),
+                        extendedProps: {
+                        description: event.descrpition,
+                        type: event.type,
+                        isSyllabusEvent: true,
+                        syllaId: syllabus._id,
+                        eventId: event._id
+                    },
                         editable: true,
                         allDay: true
                     });
@@ -208,7 +231,8 @@
                 backgroundColor: getEventColor(event.type),
                 extendedProps: {
                     description: event.description,
-                    type: event.type
+                    type: event.type,
+                    isSyllabusEvent: false
                 },
                 editable: true,
                 allDay: true
@@ -226,6 +250,13 @@
                     start: new Date(event.startDate),
                     end: new Date(event.endDate || event.startDate),
                     backgroundColor: getEventColor(event.type),
+                    extendedProps: {
+                        description: event.descrpition,
+                        type: event.type,
+                        isSyllabusEvent: true,
+                        syllaId: syllabus._id,
+                        eventId: event._id
+                    },
                     editable: true,
                     allDay: true
                 })
