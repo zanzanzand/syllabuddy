@@ -12,13 +12,13 @@ jest.mock('../src/llm/date_parser', () => ({
         instructor: "Dr. Smith",
         semester: "1st Semester 2026",
         events: [
-            { title: "First Day", startDate: "2026-01-09", type: "class", description: "Introduction" },
-            { title: "Event 2", startDate: "2026-01-16", type: "class", description: "" },
-            { title: "Event 3", startDate: "2026-01-23", endDate: "2026-01-25", type: "class", description: "" },
-            { title: "Event 4", startDate: "2026-01-30", type: "class", description: "" },
-            { title: "Event 5", startDate: "2026-02-06", type: "class", description: "" },
+            { title: "First Day", startDate: "2026-01-09", type: "lecture", description: "Introduction" },
+            { title: "Event 2", startDate: "2026-01-16", type: "lecture", description: "" },
+            { title: "Event 3", startDate: "2026-01-23", endDate: "2026-01-25", type: "lecture", description: "" },
+            { title: "Event 4", startDate: "2026-01-30", type: "lecture", description: "" },
+            { title: "Event 5", startDate: "2026-02-06", type: "lecture", description: "" },
             { title: "Office Hours", startDate: "2026-02-13", type: "consultation", description: "By appointment" },
-            { title: "Lecture-Discussion: Platonic Ethics", startDate: "2026-02-20", type: "class", description: "" },
+            { title: "Lecture-Discussion: Platonic Ethics", startDate: "2026-02-20", type: "lecture", description: "" },
         ]
     }),
     parseGradeWeights: jest.fn().mockResolvedValue({
