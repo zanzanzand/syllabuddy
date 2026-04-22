@@ -25,7 +25,6 @@
     let categoryColorsMap = $state({});
 
     onMount(async () => {
-        // Fetch preferences for category colors
         const prefsRes = await fetch('http://localhost:3000/preferences', {
             credentials: 'include'
         });
@@ -36,15 +35,34 @@
             }
         }
 
-        // Fetch events
-        const res = await fetch('http://localhost:3000/events', {
-            credentials: 'include'
-        });
-        if (res.ok) {
-            events = await res.json();
-            processData();
+        const [eventsRes, syllabiRes] = await Promise.all([
+            fetch('http://localhost:3000/events', { credentials: 'include' }),
+            fetch('http://localhost:3000/syllabi', { credentials: 'include' })
+        ]);
+
+        let allEvents = [];
+
+        if (eventsRes.ok) {
+            const saved = await eventsRes.json();
+            allEvents = [...allEvents, ...saved];
         }
-    });
+
+        if (syllabiRes.ok) {
+            const syllabi = await syllabiRes.json();
+            syllabi.forEach(syllabus => {
+                syllabus.events.forEach(event => {
+                    if (!event.startDate) return;
+                    allEvents.push({
+                        startDate: event.startDate,
+                        type: event.type || 'other'
+                    });
+                });
+            });
+        }
+
+    events = allEvents;
+    processData();
+});
 
     function processData() {
         const monthlyCounts = Array(12).fill(0);
