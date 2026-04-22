@@ -56,8 +56,8 @@
       status = "scanning";
 
       if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || "Upload failed.");
+        const msg = await res.json();
+        throw new Error(msg.error || "Upload failed.");
       }
 
       const result = await res.json();
