@@ -11,7 +11,7 @@ jest.mock('../src/llm/date_parser', () => ({
         course_code: "SOCSC 13",
         instructor: "Asst. Prof. Genesis Kelly S. Lontoc",
         semester: "Second",
-        events: []
+        events: [{ title: 'Course Introduction', startDate: new Date('2026-01-07'), type: 'lecture', description: ''}]
     }),
     parseGradeWeights: jest.fn().mockResolvedValue({
         grading: {
