@@ -4,6 +4,7 @@ const cors = require('cors')
 const multer = require('multer')
 const passport = require('passport')
 const session = require('express-session')
+const mongoose = require('mongoose')
 const MongoStore = require('connect-mongo').default
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const Syllabus = require('./models/Syllabus.js')
@@ -498,6 +499,40 @@ app.delete('/events/:id', isAuthenticated, async (req, res) => {
         res.status(500).json({ error: 'Failed to delete event.'});
     }
 })
+
+app.put('/syllabus/:syllaId/event/:eventId', isAuthenticated, async (req, res) => {
+    try {
+        const syllabus = await Syllabus.findOneAndUpdate(
+            { _id: req.params.syllaId, userId: req.user._id, 'events._id': new mongoose.Types.ObjectId(req.params.eventId) },
+            { $set: {
+                'events.$.title': req.body.title,
+                'events.$.startDate': req.body.startDate,
+                'events.$.endDate': req.body.endDate || null,
+                'events.$.type': req.body.type,
+                'events.$.description': req.body.description
+            }},
+            { new: true }
+        );
+        if (!syllabus) return res.status(404).json({ error: 'Not found.' });
+        res.json(syllabus);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update syllabus event.' });
+    }
+});
+
+app.delete('/syllabus/:syllaId/event/:eventId', isAuthenticated, async (req, res) => {
+    try {
+        const syllabus = await Syllabus.findOneAndUpdate(
+            { _id: req.params.syllaId, userId: req.user._id },
+            { $pull: { events: { _id: new mongoose.Types.ObjectId(req.params.eventId) } } },
+            { new: true }
+        );
+        if (!syllabus) return res.status(404).json({ error: 'Not found.' });
+        res.json({ message: 'Event deleted.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete syllabus event.' });
+    }
+});
 
 // To get the correct error codes since multer errors always return 500.
 app.use((err, req, res, next) => {
