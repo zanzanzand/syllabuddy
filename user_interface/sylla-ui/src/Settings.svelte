@@ -1,6 +1,7 @@
 <script>
     import {calendarTheme, calendarBackground, backgroundOpacity, categoryColors} from './store.js'
     import {onMount} from 'svelte'
+    import Profile from './Profile.svelte';
 
     // Theme state
     let selectedTheme = 'light'
@@ -139,6 +140,10 @@
 <div class="settings-page">
     <h1>Settings</h1>
 
+    <section class="settings-section">
+        <Profile />
+    </section>
+
     <!-- Calendar Theme Customization -->
     <section class="settings-section">
         <h2>Calendar Theme</h2>
@@ -158,12 +163,12 @@
             </label>
         </div>
 
-        <div class="form-group">
+        <!-- <div class="form-group">
             <label for="bg-upload">Background Image (optional)</label>
             <input type="file" id="bg-upload" accept=".jpg,.jpeg,.png" onchange={handleBgUpload} />
-        </div>
+        </div> -->
 
-        {#if bgImage}
+        <!-- {#if bgImage}
             <div class="bg-preview">
                 <img src={bgImage} alt="Background preview" />
                 <button class="remove-btn" onclick={() => bgImage = ''}>Remove</button>
@@ -172,7 +177,7 @@
                 <label for="opacity">Background Opacity: {Math.round(bgOpacity * 100)}%</label>
                 <input type="range" id="opacity" min="0" max="1" step="0.05" bind:value={bgOpacity} />
             </div>
-        {/if}
+        {/if} -->
 
         <button class="save-btn" onclick={saveTheme}>Save Theme</button>
         {#if saveThemeStatus}<p class="status">{saveThemeStatus}</p>{/if}
@@ -214,36 +219,41 @@
 
 <style>
     .settings-page {
-        max-width: 600px;
+        max-width: 680px;
         margin: 0 auto;
         padding: 2rem;
-        font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+        font-family: 'DM Sans', system-ui, sans-serif;
     }
 
     h1 {
         font-size: 1.8rem;
         font-weight: 700;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
+        color: #1a1a1a;
+    }
+
+    h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
+        color: #1a1a1a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
     .settings-section {
         background: #fff;
-        border: 1px solid oklch(92.2% 0 0);
+        border: 1px solid #e8e5df;
         border-radius: 12px;
         padding: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    h2 {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
+        margin-bottom: 1.25rem;
     }
 
     .theme-options {
         display: flex;
-        gap: 1rem;
+        gap: 0.75rem;
         margin-bottom: 1.5rem;
+        flex-wrap: wrap;
     }
 
     .theme-options label {
@@ -251,15 +261,22 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.5rem 1rem;
-        border: 1px solid oklch(87% 0 0);
+        border: 1.5px solid #e0ddd7;
         border-radius: 8px;
         cursor: pointer;
         font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.15s;
+    }
+
+    .theme-options label:hover {
+        border-color: #bbb;
     }
 
     .theme-options label.active {
-        border-color: #4ECDC4;
-        background: #f0fffe;
+        border-color: #2d5016;
+        background: #eef4e8;
+        color: #2d5016;
     }
 
     .form-group {
@@ -268,15 +285,16 @@
 
     .form-group label {
         display: block;
-        font-size: 0.875rem;
+        font-size: 0.8rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
         color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
     }
 
     .bg-preview {
         margin-bottom: 1rem;
-        position: relative;
         display: inline-block;
     }
 
@@ -285,22 +303,24 @@
         height: 120px;
         object-fit: cover;
         border-radius: 8px;
-        border: 1px solid oklch(87% 0 0);
+        border: 1px solid #e8e5df;
+        display: block;
     }
 
     .remove-btn {
         display: block;
         margin-top: 0.5rem;
         background: #fff;
-        border: 1px solid oklch(87% 0 0);
+        border: 1px solid #e8e5df;
         border-radius: 6px;
         padding: 4px 12px;
         cursor: pointer;
         font-size: 0.875rem;
+        color: #666;
     }
 
     .remove-btn:hover {
-        background: oklch(92.2% 0 0);
+        background: #f5f5f5;
     }
 
     .color-grid {
@@ -321,21 +341,22 @@
         font-weight: 600;
         text-transform: capitalize;
         font-size: 0.9rem;
+        color: #333;
     }
 
     .color-row input[type="color"] {
-        width: 40px;
-        height: 40px;
-        border: none;
+        width: 36px;
+        height: 36px;
+        border: 1px solid #e8e5df;
         border-radius: 6px;
         cursor: pointer;
-        padding: 0;
+        padding: 2px;
     }
 
     .color-row input[type="text"] {
         width: 100px;
         padding: 6px 10px;
-        border: 1px solid oklch(87% 0 0);
+        border: 1px solid #e8e5df;
         border-radius: 6px;
         font-size: 0.875rem;
         font-family: monospace;
@@ -357,39 +378,45 @@
         display: flex;
         gap: 0.75rem;
         margin-top: 1rem;
+        flex-wrap: wrap;
     }
 
     .save-btn {
-        background: #4ECDC4;
-        color: white;
+        background: #2d5016;
+        color: #c8e6a0;
         border: none;
         border-radius: 8px;
         padding: 10px 20px;
         font-weight: 600;
+        font-size: 0.9rem;
         cursor: pointer;
+        transition: background 0.15s;
     }
 
     .save-btn:hover {
-        background: #3dbdb4;
+        background: #3a6620;
     }
 
     .reset-btn {
         background: #fff;
         color: #64748b;
-        border: 1px solid oklch(87% 0 0);
+        border: 1px solid #e8e5df;
         border-radius: 8px;
         padding: 10px 20px;
         font-weight: 600;
+        font-size: 0.9rem;
         cursor: pointer;
+        transition: background 0.15s;
     }
 
     .reset-btn:hover {
-        background: oklch(92.2% 0 0);
+        background: #f5f5f5;
     }
 
     .status {
-        color: #27ae60;
+        color: #2d5016;
         font-size: 0.875rem;
         margin-top: 0.5rem;
+        font-weight: 500;
     }
 </style>

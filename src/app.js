@@ -260,47 +260,61 @@ app.get('/logout', (req, res) => {
 
 app.get('/export', isAuthenticated, async (req, res) => {
     try {
+        const [syllabi, manualEvents] = await Promise.all([
+            Syllabus.find({ userId: req.user._id }),
+            Event.find({ userId: req.user._id })
+        ]);
 
-        const syllabi = await Syllabus.find({userId: req.user._id})
+        const events = [];
 
-        const events = []
-
+        // Add syllabus events
         syllabi.forEach(syllabus => {
             syllabus.events.forEach(event => {
-
-                const date = new Date(event.startDate)
-
+                if (!event.startDate) return;
+                const date = new Date(event.startDate);
                 events.push({
                     title: event.title,
-                    description: event.type + " - " + event.description,
+                    description: (event.type || '') + " - " + (event.description || ''),
                     start: [
                         date.getFullYear(),
                         date.getMonth() + 1,
-                        date.getDate(),
-                        date.getHours(),
-                        date.getMinutes()
+                        date.getDate()
                     ]
-                })
-            })
-        })
+                });
+            });
+        });
 
-        const { error, value } = createEvents(events)
+        // Add manually added events
+        manualEvents.forEach(event => {
+            if (!event.startDate) return;
+            const date = new Date(event.startDate);
+            events.push({
+                title: event.title,
+                description: (event.type || '') + " - " + (event.description || ''),
+                start: [
+                    date.getFullYear(),
+                    date.getMonth() + 1,
+                    date.getDate()
+                ]
+            });
+        });
+
+        const { error, value } = createEvents(events);
 
         if (error) {
-            console.log(error)
-            return res.send(error)
+            console.log(error);
+            return res.send(error);
         }
 
-        res.setHeader('Content-Type', 'text/calendar')
-        res.setHeader('Content-Disposition', 'attachment; filename=calendar.ics')
-
-        res.send(value)
+        res.setHeader('Content-Type', 'text/calendar');
+        res.setHeader('Content-Disposition', 'attachment; filename=calendar.ics');
+        res.send(value);
 
     } catch (error) {
-        console.log(error)
-        res.send(error)
+        console.log(error);
+        res.send(error);
     }
-})
+});
 
 // "Homepage" placeholder.
 app.get('/', (req, res) => {
