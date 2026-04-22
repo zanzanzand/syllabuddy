@@ -20,13 +20,19 @@ describe('Syllabus Save & Delete Endpoints', () => {
     })
 
     beforeEach(async () => {
+        global.__testUser = {
+            _id: new mongoose.Types.ObjectId(),
+            displayName: 'Test User',
+            email: 'test@test.com'
+        }
         const doc = await Syllabus.create({
             title: 'Test Course',
             code: 'TEST101',
             instructor: 'Dr. Test',
             semester: '1st Sem 2026',
+            userId: global.__testUser._id,
             events: [
-                { title: 'Original Event', startDate: new Date('2026-03-15'), type: 'exam', description: 'Initial' }
+                { title: 'Original Event', startDate: new Date('2026-03-15'), type: 'exam', description: 'Initial', userId: global.__testUser._id }
             ]
         })
         testSyllabusId = doc._id.toString()
@@ -45,9 +51,10 @@ describe('Syllabus Save & Delete Endpoints', () => {
             code: 'TEST101',
             instructor: 'Dr. Test',
             semester: '1st Sem 2026',
+            userId: global.__testUser._id,
             events: [
-                { title: 'Midterm', startDate: '2026-03-20', endDate: '2026-03-22', type: 'exam', description: 'Covers ch 1-5' },
-                { title: 'Final', startDate: '2026-05-10', type: 'exam', description: 'Comprehensive' },
+                { title: 'Midterm', startDate: '2026-03-20', endDate: '2026-03-22', type: 'exam', description: 'Covers ch 1-5', userId: global.__testUser._id },
+                { title: 'Final', startDate: '2026-05-10', type: 'exam', description: 'Comprehensive', userId: global.__testUser._id },
             ]
         }
 
@@ -70,6 +77,7 @@ describe('Syllabus Save & Delete Endpoints', () => {
             code: 'TEST101',
             instructor: 'Dr. Test',
             semester: '1st Sem 2026',
+            userId: global.__testUser._id,
             events: []
         }
 
@@ -88,31 +96,51 @@ describe('Syllabus Save & Delete Endpoints', () => {
             code: 'TEST101',
             instructor: 'Dr. Test',
             semester: '1st Sem 2026',
+            userId: global.__testUser._id,
             events: [
-                { title: 'Midterm', startDate: '2026-03-20', endDate: '2026-03-22', type: 'exam', description: 'Covers ch 1-5' },
-                { title: '', startDate: '2026-04-21', endDate: '2026-04-22', type: 'project', description: 'No titulo' }
+                { title: 'Midterm', startDate: '2026-03-20', endDate: '2026-03-22', type: 'exam', description: 'Covers ch 1-5', userId: global.__testUser._id },
+                { title: '', startDate: '2026-04-21', endDate: '2026-04-22', type: 'project', description: 'No titulo', userId: global.__testUser._id }
             ]
         }
-        const res = (await request(app).post('syllabus/save')).send(payload)
+        const res = await request(app).post('/syllabus/save').send(payload)
         expect(res.statusCode).toBe(400)
-        expect(res.body.error).toMatch('')
+        expect(res.body.error).toMatch('Each event must have a title.')
     })
 
     test('Reject save if an event is missing a starting date', async () => {
-    const payload = {
-        SyllaID: testSyllabusId,
-        title: 'Test Course',
-        code: 'TEST101',
-        instructor: 'Dr. Test',
-        semester: '1st Sem 2026',
-        events: [
-            { title: 'Midterm', startDate: null, type: 'exam', description: '' }
-        ]
-    }
-    const res = await request(app).post('/syllabus/save').send(payload)
-    expect(res.statusCode).toBe(400)
-    expect(res.body.error).toMatch('')
-})
+        const payload = {
+            SyllaID: testSyllabusId,
+            title: 'Test Course',
+            code: 'TEST101',
+            instructor: 'Dr. Test',
+            semester: '1st Sem 2026',
+            userId: global.__testUser._id,
+            events: [
+                { title: 'Midterm', startDate: null, type: 'exam', description: '', userId: global.__testUser._id }
+            ]
+        }
+        const res = await request(app).post('/syllabus/save').send(payload)
+        expect(res.statusCode).toBe(400)
+        expect(res.body.error).toMatch('Each event must have a start date.')
+    })
+
+    test('Reject save if userId does not match the one saved in the database', async () => {
+        global.__testUser._id = new mongoose.Types.ObjectId()
+        const payload = {
+            SyllaID: testSyllabusId,
+            title: 'Test Course',
+            code: 'TEST101',
+            instructor: 'Dr. Test',
+            semester: '1st Sem 2026',
+            userId: 'agjgjakgjadkgjiej',
+            events: [
+                { title: 'Midterm', startDate: '2026-04-20', type: 'exam', description: '', userId: global.__testUser._id }
+            ]
+        }
+        const res = await request(app).post('/syllabus/save').send(payload)
+        expect(res.statusCode).toBe(404)
+        expect(res.body.error).toMatch('Syllabus not found.')
+    })
 
     test('Return 404 if ID is not found', async () => {
         const fakeId = new mongoose.Types.ObjectId().toString()
@@ -122,7 +150,8 @@ describe('Syllabus Save & Delete Endpoints', () => {
             code: 'TEST202',
             instructor: 'Nobody',
             semester: 'N/A',
-            events: [{ title: 'Event', startDate: '2026-01-01', type: 'other', description: '' }]
+            userId: global.__testUser._id,
+            events: [{ title: 'Event', startDate: '2026-01-01', type: 'other', description: '', userId: global.__testUser._id }]
         }
 
         const res = await request(app)
@@ -140,7 +169,8 @@ describe('Syllabus Save & Delete Endpoints', () => {
             code: 'TEST202',
             instructor: 'Test',
             semester: 'Test',
-            events: [{ title: 'Event', startDate: '2026-01-01', type: 'other', description: '' }]
+            userId: global.__testUser._id,
+            events: [{ title: 'Event', startDate: '2026-01-01', type: 'other', description: '', userId: global.__testUser._id }]
         }
 
         const res = await request(app)
@@ -165,6 +195,12 @@ describe('Syllabus Save & Delete Endpoints', () => {
         const fakeId = new mongoose.Types.ObjectId().toString()
         const res = await request(app).delete('/syllabus/delete/' + fakeId)
 
+        expect(res.statusCode).toBe(404)
+    })
+
+    test('Reject attempt to delete if Syllabus not owned by user', async () => {
+        global.__testUser._id = new mongoose.Types.ObjectId()
+        const res = await request(app).delete('/syllabus/delete' + testSyllabusId)
         expect(res.statusCode).toBe(404)
     })
 
